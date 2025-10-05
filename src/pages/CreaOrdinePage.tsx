@@ -295,7 +295,7 @@ export default function CreaOrdinePage() {
             }}
             disabled={totalBottiglie === 0}
           >
-            Gestisci Ordine
+            Gestisci Prodotti
           </button>
         </div>
       </footer>

@@ -9,7 +9,7 @@ export function Header() {
             <source type="image/webp" srcSet="/logo1.webp" />
             <img 
               src="/logo1.png" 
-              alt="WINENODE"
+              alt="BARNODE"
               loading="eager"
               decoding="async"
             />

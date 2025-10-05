@@ -80,7 +80,7 @@ export default function GestisciOrdiniPage() {
           }}>
             <div className="flex items-center justify-center">
               <h1 className="text-lg font-bold" style={{ color: '#541111' }}>
-                Gestisci Ordini
+                Gestisci Prodotti
               </h1>
             </div>
           </div>

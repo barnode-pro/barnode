@@ -1,11 +1,9 @@
 {
-  "timestamp": "2025-10-05T20:55:12.253Z",
-  "snapshotId": "recovery-2025-10-05T20-55-12-250Z",
-  "branch": "main",
-  "lastCommit": "9653626327f76fbb08bf17cd9d14c92489e11b8d docs: final project analysis and documentation update",
-  "modifiedFiles": [
-    "\"DOCS/01-INFORMATIVI/06-REPORT_QUALITA\\314\\200.md\""
-  ],
+  "timestamp": "2025-10-05T21:54:34.144Z",
+  "snapshotId": "recovery-2025-10-05T21-54-34-140Z",
+  "branch": "prep/barnode-setup-clean",
+  "lastCommit": "f6f63e752356ccc6405a1e42ed66c606930c5a5a chore(setup): clean history snapshot for initial push [SAFE]",
+  "modifiedFiles": [],
   "activeTask": "Task generico",
   "reports": []
 }

@@ -85,6 +85,29 @@
 - `package.json` - Nome progetto → "barnode"
 - `DOCS/00-INDICI/DOCS_INDEX.md` - Titolo aggiornato
 
+## 🏗️ STRUTTURA BARNODE (STEP 2)
+
+### Dominio ProdottiBar
+- **`src/domain/prodottiBar/types.ts`** - Tipo ProdottoBar con campo costo_prodotto
+- **`src/domain/prodottiBar/index.ts`** - Re-export del dominio
+- **`src/adapters/prodottiBarFromWines.ts`** - Adapter compatibilità WineType → ProdottoBar
+- **`src/hooks/useProdottiBar.ts`** - Hook wrapper che riusa useWines legacy
+
+### Compatibilità Layer
+- **Adapter**: Mapping WineType.name → ProdottoBar.nome, supplier → marca, etc.
+- **Hook**: useProdottiBar() riusa useWines() esistente + mapping
+- **Export**: Aggiunti re-export in src/contexts/index.ts
+
+### UI Updates
+- **Header**: Logo alt text "WINENODE" → "BARNODE"
+- **GestisciOrdiniPage**: Titolo "Gestisci Ordini" → "Gestisci Prodotti"
+- **CreaOrdinePage**: Pulsante "Gestisci Ordine" → "Gestisci Prodotti"
+
+### Note Tecniche
+- **`costo_prodotto`**: Campo previsto a codice, **NON** ancora persistito su DB
+- **Nessun DDL**: Continua ad usare tabelle "vini" esistenti
+- **Zero Breaking Changes**: useWines() e tutti i flussi esistenti invariati
+
 ---
 
 ## 🛡️ NOTE SICUREZZA
