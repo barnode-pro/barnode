@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Main Bundle (gzip)",
+    "path": "dist/assets/index-*.js",
+    "limit": "500 KB",
+    "gzip": true
+  },
+  {
+    "name": "Total Bundle (gzip)",
+    "path": "dist/assets/*.js",
+    "limit": "167 KB",
+    "gzip": true
+  },
+  {
+    "name": "React Core Vendor",
+    "path": "dist/assets/react-core-*.js", 
+    "limit": "53 KB",
+    "gzip": true
+  },
+  {
+    "name": "Supabase Core Vendor",
+    "path": "dist/assets/supabase-core-*.js",
+    "limit": "30 KB", 
+    "gzip": true
+  }
+]

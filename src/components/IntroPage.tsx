@@ -1,0 +1,71 @@
+import { useEffect, useState } from 'react'
+
+interface IntroPageProps {
+  onComplete: () => void
+}
+
+const IntroPage = ({ onComplete }: IntroPageProps) => {
+  const [fadeIn, setFadeIn] = useState(false)
+
+  useEffect(() => {
+    // Fade in immediato
+    setFadeIn(true)
+    
+    // Timer di 5 secondi
+    const timer = setTimeout(() => {
+      onComplete()
+    }, 5000)
+
+    return () => clearTimeout(timer)
+  }, [onComplete])
+
+  return (
+    <div className="min-h-screen bg-app-bg flex flex-col items-center justify-center px-4 relative">
+      {/* Logo centrato */}
+      <div 
+        className={`flex items-center justify-center transition-opacity duration-500 ${
+          fadeIn ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        <img 
+          src="/logo1.png" 
+          alt="WineNode Logo" 
+          className="w-full h-auto object-contain"
+          loading="lazy"
+          decoding="async"
+          width="200"
+          height="200"
+          style={{ 
+            filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.15))',
+            maxWidth: 'min(50vw, 192px)',
+            maxHeight: '30vh'
+          }}
+        />
+      </div>
+      
+      {/* Footer "By DERO" posizionato a tre quarti della pagina */}
+      <div 
+        className={`absolute left-0 right-0 flex items-center justify-center transition-opacity duration-500 ${
+          fadeIn ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{ 
+          top: '75%',
+          color: '#541111'
+        }}
+      >
+        <span 
+          className="text-sm font-medium tracking-wide"
+          style={{ 
+            fontSize: '14px',
+            fontWeight: '500',
+            letterSpacing: '0.025em'
+          }}
+        >
+          By DERO
+        </span>
+      </div>
+    </div>
+  )
+}
+
+export default IntroPage

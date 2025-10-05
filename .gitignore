@@ -1,0 +1,30 @@
+
+node_modules/
+dist/
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.DS_Store
+*.log
+.replit
+replit.nix
+attached_assets/
+
+# ---- winenode foundation (rt004) ----
+# Backups & recovery
+Backup_Automatico/*.tar
+*.tar.gz
+.recovery/snapshots/*
+# Coverage & test output
+coverage/
+.nyc_output/
+
+# ignore archivi e backup grandi
+*.tar.gz
+*.zip
+Backup_Automatico/
+DOCS/ARCHIVIATI/
+.archive/
