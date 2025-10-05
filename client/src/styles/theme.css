@@ -1,0 +1,33 @@
+/* BarNode Theme - Colori Brand */
+:root {
+  /* Colori Brand BarNode */
+  --bn-cream: #fef9e2;
+  --bn-mint: #afe4a2;
+  --bn-green: #145304;
+  
+  /* Variazioni tonali */
+  --bn-cream-light: #fffef7;
+  --bn-cream-dark: #f5f0c8;
+  --bn-mint-light: #c8f0bb;
+  --bn-mint-dark: #96d889;
+  --bn-green-light: #1e7006;
+  --bn-green-dark: #0f3f02;
+  
+  /* Applicazione ai token esistenti */
+  --primary: 145 96% 16%; /* bn-green */
+  --primary-foreground: 51 90% 94%; /* bn-cream */
+  --accent: 108 64% 76%; /* bn-mint */
+  --accent-foreground: 145 96% 16%; /* bn-green */
+}
+
+/* Dark mode overrides */
+.dark {
+  --bn-cream: #2a2a1a;
+  --bn-mint: #4a6b3a;
+  --bn-green: #7fb069;
+  
+  --primary: 108 64% 76%; /* bn-mint in dark */
+  --primary-foreground: 145 96% 16%; /* bn-green in dark */
+  --accent: 145 96% 16%; /* bn-green in dark */
+  --accent-foreground: 108 64% 76%; /* bn-mint in dark */
+}

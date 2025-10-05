@@ -1,0 +1,27 @@
+{
+  "name": "BarNode",
+  "short_name": "BarNode",
+  "description": "Una moderna applicazione React per la gestione modulare e organizzata",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fef9e2",
+  "theme_color": "#145304",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/home.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/home.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "it",
+  "dir": "ltr"
+}
