@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Upload, Link, FileSpreadsheet, CheckCircle, AlertCircle } from 'lucide-react';
+import { Loader2, Upload, Link, FileSpreadsheet, CheckCircle, AlertCircle, X, File } from 'lucide-react';
 import { importService } from '@/services/import.service';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -26,12 +26,67 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [googleSheetUrl, setGoogleSheetUrl] = useState('');
   const [result, setResult] = useState<any>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
   
   const queryClient = useQueryClient();
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    setSelectedFile(file || null);
+    handleFileChange(file);
+  };
+
+  const handleFileChange = (file: File | undefined) => {
+    if (file) {
+      // Verifica formato file
+      const allowedTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'text/csv' // .csv
+      ];
+      
+      if (!allowedTypes.includes(file.type) && !file.name.match(/\.(xlsx|xls|csv)$/i)) {
+        toast.error('Formato file non supportato. Usa Excel (.xlsx, .xls) o CSV.');
+        return;
+      }
+      
+      // Verifica dimensione (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('File troppo grande. Massimo 5MB.');
+        return;
+      }
+      
+      setSelectedFile(file);
+    } else {
+      setSelectedFile(null);
+    }
+    setResult(null);
+  };
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      handleFileChange(files[0]);
+    }
+  }, []);
+
+  const removeFile = () => {
+    setSelectedFile(null);
     setResult(null);
   };
 
@@ -133,47 +188,102 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="file-upload">Seleziona File</Label>
-                  <Input
-                    id="file-upload"
-                    type="file"
-                    accept=".xlsx,.xls,.csv"
-                    onChange={handleFileSelect}
-                    disabled={loading}
-                  />
-                  {selectedFile && (
-                    <p className="text-sm text-muted-foreground">
-                      File selezionato: {selectedFile.name} ({(selectedFile.size / 1024).toFixed(1)} KB)
-                    </p>
-                  )}
-                </div>
+                {!selectedFile ? (
+                  // Zona Drag & Drop
+                  <div
+                    className={`
+                      relative border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer
+                      ${isDragOver 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/50'
+                      }
+                      ${loading ? 'opacity-50 cursor-not-allowed' : ''}
+                    `}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => !loading && document.getElementById('file-upload')?.click()}
+                  >
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept=".xlsx,.xls,.csv"
+                      onChange={handleFileSelect}
+                      disabled={loading}
+                      className="hidden"
+                    />
+                    
+                    <div className="space-y-4">
+                      <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Upload className="w-6 h-6 text-primary" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <p className="text-lg font-medium">
+                          {isDragOver ? 'Rilascia il file qui' : 'Trascina il file qui'}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          oppure <span className="text-primary font-medium">clicca per selezionare</span>
+                        </p>
+                      </div>
+                      
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p>Formati supportati: Excel (.xlsx, .xls) e CSV</p>
+                        <p>Dimensione massima: 5MB • Max 200 righe</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // File Selezionato - Preview e Conferma
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 border rounded-lg bg-muted/30">
+                      <div className="w-10 h-10 rounded bg-primary/10 flex items-center justify-center">
+                        <File className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium truncate">{selectedFile.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {(selectedFile.size / 1024).toFixed(1)} KB • {selectedFile.type || 'File'}
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={removeFile}
+                        disabled={loading}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
 
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Colonne supportate:</strong> Nome Prodotto, Categoria, Fornitore, Prezzo acquisto, Prezzo vendita.
-                    Massimo 200 righe per import.
-                  </AlertDescription>
-                </Alert>
+                    <Alert>
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        <strong>Colonne supportate:</strong> Nome Prodotto, Categoria, Fornitore, Prezzo acquisto, Prezzo vendita.
+                      </AlertDescription>
+                    </Alert>
 
-                <Button 
-                  onClick={handleFileImport}
-                  disabled={!selectedFile || loading}
-                  className="w-full"
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Importando...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="mr-2 h-4 w-4" />
-                      Importa File
-                    </>
-                  )}
-                </Button>
+                    <Button 
+                      onClick={handleFileImport}
+                      disabled={loading}
+                      className="w-full"
+                      size="lg"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Importando...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="mr-2 h-4 w-4" />
+                          Conferma Import
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -211,6 +321,7 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
                   onClick={handleGSheetImport}
                   disabled={!googleSheetUrl.trim() || loading}
                   className="w-full"
+                  size="lg"
                 >
                   {loading ? (
                     <>
