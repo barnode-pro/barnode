@@ -1,4 +1,4 @@
-import { eq, ilike, or, count, desc, sql, and, lt, inArray } from 'drizzle-orm';
+import { eq, ilike, or, count, desc, gte, lte, and, inArray, sql } from 'drizzle-orm';
 import { dbSqlite as db } from '../client.js';
 import { articoli, type Articolo, type InsertArticoloInput, type UpdateArticoloInput, type SearchArticoliInput, type BulkEditArticoliInput } from '../schema/articolo.js';
 import { fornitori } from '../schema/fornitore.js';
@@ -139,6 +139,25 @@ export class ArticoliRepository {
     } catch (error) {
       if (error instanceof NotFoundError) throw error;
       throw new DatabaseError('Errore recupero articolo', error as Error);
+    }
+  }
+
+  async findByFornitoreAndNome(fornitoreId: string, nome: string): Promise<Articolo | null> {
+    try {
+      const [articolo] = await db
+        .select()
+        .from(articoli)
+        .where(
+          and(
+            eq(articoli.fornitore_id, fornitoreId),
+            eq(articoli.nome, nome.trim())
+          )
+        )
+        .limit(1);
+
+      return articolo || null;
+    } catch (error) {
+      throw new DatabaseError('Errore ricerca articolo per fornitore e nome', error as Error);
     }
   }
   async create(data: InsertArticoloInput): Promise<Articolo> {

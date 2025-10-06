@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ImportProdottiDialog } from "@/components/ImportProdottiDialog";
 import { useArticoli } from "@/hooks/useArticoli";
 import { useFornitori } from "@/hooks/useFornitori";
 import BoxIcon from "~icons/tabler/box";
@@ -13,6 +14,7 @@ import PlusIcon from "~icons/tabler/plus";
 import SearchIcon from "~icons/tabler/search";
 import EditIcon from "~icons/tabler/edit";
 import TrashIcon from "~icons/tabler/trash";
+import UploadIcon from "~icons/tabler/upload";
 
 /**
  * ArticoliPage - Gestione inventario articoli
@@ -94,10 +96,18 @@ export default function ArticoliPage() {
                 Gestione inventario e scorte dell'attività
               </p>
             </div>
-            <Button className="gap-2" disabled>
-              <PlusIcon className="h-4 w-4" />
-              Nuovo Articolo
-            </Button>
+            <div className="flex gap-2">
+              <ImportProdottiDialog>
+                <Button variant="outline" className="gap-2">
+                  <UploadIcon className="h-4 w-4" />
+                  Importa Prodotti
+                </Button>
+              </ImportProdottiDialog>
+              <Button className="gap-2" disabled>
+                <PlusIcon className="h-4 w-4" />
+                Nuovo Articolo
+              </Button>
+            </div>
           </div>
 
           {/* Filtri e Ricerca */}

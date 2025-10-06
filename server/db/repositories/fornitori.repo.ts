@@ -74,6 +74,20 @@ export class FornitoriRepository {
     }
   }
 
+  async findByNome(nome: string): Promise<Fornitore | null> {
+    try {
+      const [fornitore] = await db
+        .select()
+        .from(fornitori)
+        .where(eq(fornitori.nome, nome.trim()))
+        .limit(1);
+
+      return fornitore || null;
+    } catch (error) {
+      throw new DatabaseError('Errore ricerca fornitore per nome', error as Error);
+    }
+  }
+
   async create(data: InsertFornitoreInput): Promise<Fornitore> {
     try {
       const [newFornitore] = await db

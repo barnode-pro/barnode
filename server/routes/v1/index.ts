@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { articoliRoutes } from './articoli.routes.js';
 import { fornitoriRoutes } from './fornitori.routes.js';
 import ordiniRoutes from './ordini.routes.js';
+import importRoutes from './import.routes.js';
 import { dbSqlite as db, sqlite, driver } from '../../db/client.js';
 import { fornitori, articoli } from '../../db/schema/index.js';
 import { sql } from 'drizzle-orm';
@@ -17,6 +18,7 @@ const router = Router();
 router.use('/articoli', articoliRoutes);
 router.use('/fornitori', fornitoriRoutes);
 router.use('/ordini', ordiniRoutes);
+router.use('/import', importRoutes);
 
 // Endpoint di diagnosi database (NON pubblico)
 router.get('/_healthz', async (req, res) => {

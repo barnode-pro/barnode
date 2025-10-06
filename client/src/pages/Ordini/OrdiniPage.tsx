@@ -36,26 +36,28 @@ export default function OrdiniPage() {
     fornitore_id: selectedFornitore || undefined
   });
 
-  // DEBUG: Log per identificare il problema
-  console.log('🔍 OrdiniPage Debug:', {
-    ordini: ordini?.length || 0,
-    loading,
-    error,
-    selectedStato,
-    selectedFornitore
-  });
 
   const { fornitori } = useFornitori();
 
   const handleStatoChange = (value: string) => {
-    const statoValue = value === '' ? '' : value as StatoOrdine;
-    setSelectedStato(statoValue);
-    updateFilters({ stato: statoValue || undefined });
+    if (value === 'tutti') {
+      setSelectedStato('');
+      updateFilters({ stato: undefined });
+    } else {
+      const statoValue = value as StatoOrdine;
+      setSelectedStato(statoValue);
+      updateFilters({ stato: statoValue });
+    }
   };
 
   const handleFornitoreChange = (value: string) => {
-    setSelectedFornitore(value);
-    updateFilters({ fornitore_id: value || undefined });
+    if (value === 'tutti') {
+      setSelectedFornitore('');
+      updateFilters({ fornitore_id: undefined });
+    } else {
+      setSelectedFornitore(value);
+      updateFilters({ fornitore_id: value });
+    }
   };
 
   const handleStatoUpdate = async (id: string, nuovoStato: StatoOrdine) => {
@@ -120,12 +122,12 @@ export default function OrdiniPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Select value={selectedStato} onValueChange={handleStatoChange}>
+                <Select value={selectedStato || 'tutti'} onValueChange={handleStatoChange} data-testid="ordini-filter-stato">
                   <SelectTrigger>
                     <SelectValue placeholder="Tutti gli stati" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti gli stati</SelectItem>
+                    <SelectItem value="tutti">Tutti gli stati</SelectItem>
                     <SelectItem value="bozza">Bozza</SelectItem>
                     <SelectItem value="nuovo">Nuovo</SelectItem>
                     <SelectItem value="inviato">Inviato</SelectItem>
@@ -133,12 +135,12 @@ export default function OrdiniPage() {
                     <SelectItem value="archiviato">Archiviato</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={selectedFornitore} onValueChange={handleFornitoreChange}>
+                <Select value={selectedFornitore || 'tutti'} onValueChange={handleFornitoreChange} data-testid="ordini-filter-fornitore">
                   <SelectTrigger>
                     <SelectValue placeholder="Tutti i fornitori" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Tutti i fornitori</SelectItem>
+                    <SelectItem value="tutti">Tutti i fornitori</SelectItem>
                     {fornitori.map(fornitore => (
                       <SelectItem key={fornitore.id} value={fornitore.id}>
                         {fornitore.nome}
@@ -170,9 +172,7 @@ export default function OrdiniPage() {
                 </div>
               ) : (
                 <div className="space-y-4" data-testid="ordini-list">
-                  {ordini.map((ordine) => {
-                    try {
-                      return (
+                  {ordini.map((ordine) => (
                     <div
                       key={ordine.id}
                       className={`flex items-center justify-between p-4 border rounded-lg ${
@@ -221,16 +221,7 @@ export default function OrdiniPage() {
                         </div>
                       </div>
                     </div>
-                      );
-                    } catch (err) {
-                      console.error('Errore rendering ordine:', ordine.id, err);
-                      return (
-                        <div key={ordine.id} className="p-4 border rounded-lg bg-red-50">
-                          Errore rendering ordine {ordine.id.slice(-8)}
-                        </div>
-                      );
-                    }
-                  })}
+                  ))}
                 </div>
               )}
             </CardContent>
