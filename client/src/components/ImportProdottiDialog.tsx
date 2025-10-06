@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Upload, Link, FileSpreadsheet, CheckCircle, AlertCircle, X, File } from 'lucide-react';
+import { Loader2, Upload, Link, FileSpreadsheet, CheckCircle, AlertCircle, X, File, Plus, RefreshCw } from 'lucide-react';
 import { importService } from '@/services/import.service';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -27,6 +27,8 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
   const [googleSheetUrl, setGoogleSheetUrl] = useState('');
   const [result, setResult] = useState<any>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [importMode, setImportMode] = useState<'add' | 'replace'>('add');
   
   const queryClient = useQueryClient();
 
@@ -90,11 +92,17 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
     setResult(null);
   };
 
-  const handleFileImport = async () => {
+  const handleFileImport = () => {
+    if (!selectedFile) return;
+    setShowConfirmDialog(true);
+  };
+
+  const executeImport = async () => {
     if (!selectedFile) return;
 
     setLoading(true);
     setResult(null);
+    setShowConfirmDialog(false);
 
     try {
       const response = await importService.importFromFile(selectedFile);
@@ -106,7 +114,11 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
         queryClient.invalidateQueries({ queryKey: ['articoli'] });
         queryClient.invalidateQueries({ queryKey: ['fornitori'] });
         
-        toast.success(`Import completato: ${response.data.creati} creati, ${response.data.aggiornati} aggiornati`);
+        const message = importMode === 'replace' 
+          ? `Dati sostituiti: ${response.data.creati} prodotti importati`
+          : `Import completato: ${response.data.creati} creati, ${response.data.aggiornati} aggiornati`;
+        
+        toast.success(message);
       } else {
         toast.error(response.message || 'Errore durante import');
       }
@@ -149,6 +161,8 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
     setGoogleSheetUrl('');
     setResult(null);
     setLoading(false);
+    setShowConfirmDialog(false);
+    setImportMode('add');
   };
 
   return (
@@ -379,6 +393,103 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
           </Card>
         )}
       </DialogContent>
+
+      {/* Dialog di Conferma Import */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-500" />
+              Conferma Import
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Stai per importare <strong>{selectedFile?.name}</strong> con i prodotti.
+              Come vuoi procedere?
+            </p>
+            
+            <div className="space-y-3">
+              <div 
+                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  importMode === 'add' 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-muted hover:border-primary/50'
+                }`}
+                onClick={() => setImportMode('add')}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    importMode === 'add' ? 'border-primary bg-primary' : 'border-muted-foreground'
+                  }`}>
+                    {importMode === 'add' && <div className="w-2 h-2 bg-white rounded-full m-0.5" />}
+                  </div>
+                  <div>
+                    <p className="font-medium flex items-center gap-2">
+                      <Plus className="h-4 w-4" />
+                      Aggiungi ai dati esistenti
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      I nuovi prodotti verranno aggiunti, quelli esistenti aggiornati
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div 
+                className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                  importMode === 'replace' 
+                    ? 'border-primary bg-primary/5' 
+                    : 'border-muted hover:border-primary/50'
+                }`}
+                onClick={() => setImportMode('replace')}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    importMode === 'replace' ? 'border-primary bg-primary' : 'border-muted-foreground'
+                  }`}>
+                    {importMode === 'replace' && <div className="w-2 h-2 bg-white rounded-full m-0.5" />}
+                  </div>
+                  <div>
+                    <p className="font-medium flex items-center gap-2">
+                      <RefreshCw className="h-4 w-4" />
+                      Sostituisci tutto il contenuto
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Tutti i prodotti esistenti verranno sostituiti
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex gap-2 pt-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowConfirmDialog(false)}
+                className="flex-1"
+              >
+                Annulla
+              </Button>
+              <Button 
+                onClick={executeImport}
+                disabled={loading}
+                className="flex-1"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Importando...
+                  </>
+                ) : (
+                  'Conferma'
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
