@@ -81,14 +81,15 @@ export class RigheOrdineRepository {
       throw new DatabaseError('Errore recupero riga ordine', error as Error);
     }
   }
-
   async create(data: InsertRigaOrdineInput): Promise<RigaOrdine> {
     try {
       // Conversione tipi per Drizzle
       const dbData = {
         ...data,
-        qta_ordinata: data.qta_ordinata.toString(),
-        qta_ricevuta: data.qta_ricevuta?.toString() || '0'
+        ordine_id: data.ordine_id,
+        articolo_id: data.articolo_id,
+        qta_ordinata: data.qta_ordinata,
+        qta_ricevuta: data.qta_ricevuta || 0
       };
 
       const [newRiga] = await db
@@ -135,7 +136,7 @@ export class RigheOrdineRepository {
       const [updatedRiga] = await db
         .update(righeOrdine)
         .set({ 
-          qta_ricevuta: data.qta_ricevuta.toString(),
+          qta_ricevuta: data.qta_ricevuta,
           note: data.note,
           updated_at: new Date() 
         })

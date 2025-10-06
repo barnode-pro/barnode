@@ -1,19 +1,18 @@
-import type { Ordine, RigaOrdine, Fornitore, Articolo } from "@/types";
+import type { OrdineCompleto } from './ordini.service';
 
 /**
  * Servizio per la generazione di link WhatsApp
  * Costruisce messaggi formattati per l'invio ordini ai fornitori
  */
 
-interface OrdineCompleto extends Ordine {
-  fornitore: Fornitore;
-  righe: (RigaOrdine & { articolo: Articolo })[];
-}
-
 /**
  * Genera un link WhatsApp per inviare un ordine al fornitore
  */
 export function generaLinkWhatsApp(ordine: OrdineCompleto): string {
+  if (!ordine.fornitore.whatsapp) {
+    throw new Error('Numero WhatsApp del fornitore non disponibile');
+  }
+  
   const numeroWhatsApp = ordine.fornitore.whatsapp.replace(/\D/g, '');
   const messaggio = generaMessaggioOrdine(ordine);
   const messaggioCodificato = encodeURIComponent(messaggio);
@@ -26,7 +25,7 @@ export function generaLinkWhatsApp(ordine: OrdineCompleto): string {
  * Genera il testo del messaggio per l'ordine
  */
 function generaMessaggioOrdine(ordine: OrdineCompleto): string {
-  const dataFormattata = ordine.data.toLocaleDateString('it-IT');
+  const dataFormattata = new Date(ordine.data).toLocaleDateString('it-IT');
   
   let messaggio = `🛒 *Nuovo Ordine BarNode*\n\n`;
   messaggio += `📅 Data: ${dataFormattata}\n`;

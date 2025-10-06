@@ -194,6 +194,62 @@ router.delete('/:id/righe/:rigaId',
   }
 );
 
+// POST /api/v1/ordini/:id/ricezione - Ricevi ordine (aggiorna quantità ricevute e scorte)
+const ricezioneSchema = z.object({
+  righe: z.array(z.object({
+    rigaId: z.string().uuid(),
+    quantita_ricevuta: z.number().min(0)
+  }))
+});
+
+router.post('/:id/ricezione',
+  validateParams(idParamsSchema),
+  validateBody(ricezioneSchema),
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+      const { righe } = req.body;
+      const result = await ordiniRepo.riceviOrdine(id, righe);
+      
+      logger.info('Ordine ricevuto', { 
+        ordineId: id,
+        righeAggiornate: righe.length,
+        statoOrdine: result.stato
+      });
+      
+      res.json({
+        success: true,
+        data: result,
+        message: 'Ricezione completata con successo'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// POST /api/v1/ordini/auto - Genera ordini automatici da articoli sotto soglia
+router.post('/auto',
+  async (req, res, next) => {
+    try {
+      const ordiniCreati = await ordiniRepo.generaOrdiniAutomatici();
+      
+      logger.info('Ordini automatici generati', { 
+        count: ordiniCreati.length,
+        fornitori: ordiniCreati.map(o => o.fornitore.nome)
+      });
+      
+      res.status(201).json({
+        success: true,
+        data: ordiniCreati,
+        message: `${ordiniCreati.length} ordini automatici creati`
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 // DELETE /api/v1/ordini/:id - Elimina ordine
 router.delete('/:id',
   validateParams(idParamsSchema),

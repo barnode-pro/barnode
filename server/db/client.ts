@@ -1,27 +1,28 @@
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import { logger } from '../utils/logger.js';
+import { schema } from './schema/index';
 
 /**
- * Client database PostgreSQL per BarNode
- * Configurazione Drizzle ORM con connection pooling
+ * Client database SQLite per BarNode
+ * Configurazione Drizzle ORM per sviluppo locale
  */
 
-// Configurazione connessione PostgreSQL
-const connectionString = process.env.DATABASE_URL || 
-  'postgresql://postgres:password@localhost:5432/barnode';
+// Configurazione connessione SQLite
+const databasePath = process.env.DATABASE_URL?.replace('file:', '') || './barnode.db';
 
-// Client postgres con configurazione ottimizzata
-const sql = postgres(connectionString, {
-  max: 10,                    // Pool size massimo
-  idle_timeout: 20,           // Timeout connessioni idle (secondi)
-  connect_timeout: 10,        // Timeout connessione (secondi)
-  prepare: false,             // Disabilita prepared statements per compatibilità
-  onnotice: () => {},         // Silenzia notice PostgreSQL
-});
+// Client SQLite con configurazione ottimizzata
+const sqlite = new Database(databasePath);
+
+// Configurazioni SQLite per performance
+sqlite.pragma('journal_mode = WAL');
+sqlite.pragma('synchronous = NORMAL');
+sqlite.pragma('cache_size = 1000');
+sqlite.pragma('foreign_keys = ON');
 
 // Istanza Drizzle ORM
-export const db = drizzle(sql, {
+export const db = drizzle(sqlite, {
+  schema,
   logger: process.env.NODE_ENV === 'development' ? {
     logQuery: (query, params) => {
       logger.debug('SQL Query:', { query, params });
@@ -32,8 +33,8 @@ export const db = drizzle(sql, {
 // Funzione per testare connessione database
 export async function testConnection(): Promise<boolean> {
   try {
-    await sql`SELECT 1 as test`;
-    logger.info('Connessione database PostgreSQL: OK');
+    const result = sqlite.prepare('SELECT 1 as test').get();
+    logger.info('Connessione database SQLite: OK', { result });
     return true;
   } catch (error) {
     logger.error('Errore connessione database:', error);
@@ -44,12 +45,12 @@ export async function testConnection(): Promise<boolean> {
 // Funzione per chiudere connessioni (cleanup)
 export async function closeConnection(): Promise<void> {
   try {
-    await sql.end();
+    sqlite.close();
     logger.info('Connessioni database chiuse');
   } catch (error) {
     logger.error('Errore chiusura database:', error);
   }
 }
 
-// Export del client SQL per query dirette se necessarie
-export { sql };
+// Export del client SQLite per query dirette se necessarie
+export { sqlite };

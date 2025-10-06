@@ -112,7 +112,7 @@ export class FornitoriRepository {
         .delete(fornitori)
         .where(eq(fornitori.id, id));
 
-      if (result.rowCount === 0) {
+      if (result.changes === 0) {
         throw new NotFoundError('Fornitore', id);
       }
     } catch (error) {

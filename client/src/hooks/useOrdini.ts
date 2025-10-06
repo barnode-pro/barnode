@@ -98,6 +98,38 @@ export function useOrdini(initialFilters: OrdiniFilters = {}) {
     fetchOrdini(updatedFilters);
   };
 
+  const riceviOrdine = async (ordineId: string, righe: { rigaId: string; quantita_ricevuta: number }[]): Promise<boolean> => {
+    try {
+      const response = await ordiniService.riceviOrdine(ordineId, righe);
+      if (response.success) {
+        await fetchOrdini(); // Refresh lista
+        return true;
+      } else {
+        setError(response.message || 'Errore ricezione ordine');
+        return false;
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Errore di rete');
+      return false;
+    }
+  };
+
+  const generaOrdiniAutomatici = async (): Promise<boolean> => {
+    try {
+      const response = await ordiniService.generaOrdiniAutomatici();
+      if (response.success) {
+        await fetchOrdini(); // Refresh lista
+        return true;
+      } else {
+        setError(response.message || 'Errore generazione ordini automatici');
+        return false;
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Errore di rete');
+      return false;
+    }
+  };
+
   const retry = () => {
     fetchOrdini();
   };
@@ -116,6 +148,8 @@ export function useOrdini(initialFilters: OrdiniFilters = {}) {
     createOrdine,
     updateStato,
     deleteOrdine,
+    riceviOrdine,
+    generaOrdiniAutomatici,
     updateFilters,
     retry,
     refetch: fetchOrdini

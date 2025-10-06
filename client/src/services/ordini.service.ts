@@ -82,6 +82,15 @@ export class OrdiniService {
   async remove(id: string): Promise<ApiResponse<void>> {
     return apiClient.del<void>(`/ordini/${id}`);
   }
+
+  // Nuove funzionalità STEP 4
+  async riceviOrdine(ordineId: string, righe: { rigaId: string; quantita_ricevuta: number }[]): Promise<ApiResponse<OrdineCompleto>> {
+    return apiClient.post<OrdineCompleto>(`/ordini/${ordineId}/ricezione`, { righe });
+  }
+
+  async generaOrdiniAutomatici(): Promise<ApiResponse<OrdineCompleto[]>> {
+    return apiClient.post<OrdineCompleto[]>('/ordini/auto', {});
+  }
 }
 
 export const ordiniService = new OrdiniService();

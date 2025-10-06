@@ -133,14 +133,13 @@ export class ArticoliRepository {
       throw new DatabaseError('Errore recupero articolo', error as Error);
     }
   }
-
   async create(data: InsertArticoloInput): Promise<Articolo> {
     try {
       // Conversione tipi per Drizzle
       const dbData = {
         ...data,
-        quantita_attuale: data.quantita_attuale.toString(),
-        soglia_minima: data.soglia_minima.toString()
+        quantita_attuale: data.quantita_attuale || 0,
+        soglia_minima: data.soglia_minima || 0
       };
 
       const [newArticolo] = await db

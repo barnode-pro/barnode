@@ -1,25 +1,26 @@
-import { pgTable, uuid, text, numeric, timestamp, index } from 'drizzle-orm/pg-core';
+import { sqliteTable, text, real, integer, index } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
-import { fornitori } from './fornitore.js';
+import { sql } from 'drizzle-orm';
+import { fornitori } from './fornitore';
 
 /**
  * Schema Drizzle per tabella Articoli
  * Gestione inventario con scorte e soglie minime
  */
 
-export const articoli = pgTable('articoli', {
-  id: uuid('id').primaryKey().defaultRandom(),
+export const articoli = sqliteTable('articoli', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   nome: text('nome').notNull(),
   categoria: text('categoria'),
   unita: text('unita'),
   confezione: text('confezione'),
-  quantita_attuale: numeric('quantita_attuale', { precision: 10, scale: 2 }).default('0').notNull(),
-  soglia_minima: numeric('soglia_minima', { precision: 10, scale: 2 }).default('0').notNull(),
-  fornitore_id: uuid('fornitore_id').references(() => fornitori.id).notNull(),
+  quantita_attuale: real('quantita_attuale').default(0).notNull(),
+  soglia_minima: real('soglia_minima').default(0).notNull(),
+  fornitore_id: text('fornitore_id').references(() => fornitori.id).notNull(),
   note: text('note'),
-  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+  created_at: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`).notNull(),
+  updated_at: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`).notNull()
 }, (table) => ({
   nomeFornitoreIdx: index('articoli_nome_fornitore_idx').on(table.nome, table.fornitore_id),
   categoriaIdx: index('articoli_categoria_idx').on(table.categoria),

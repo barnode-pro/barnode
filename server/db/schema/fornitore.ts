@@ -1,20 +1,21 @@
-import { pgTable, uuid, text, timestamp } from 'drizzle-orm/pg-core';
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { z } from 'zod';
+import { sql } from 'drizzle-orm';
 
 /**
  * Schema Drizzle per tabella Fornitori
  * Gestione anagrafica fornitori con contatti WhatsApp
  */
 
-export const fornitori = pgTable('fornitori', {
-  id: uuid('id').primaryKey().defaultRandom(),
+export const fornitori = sqliteTable('fornitori', {
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   nome: text('nome').notNull(),
   whatsapp: text('whatsapp'),
   email: text('email'),
   note: text('note'),
-  created_at: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-  updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+  created_at: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`).notNull(),
+  updated_at: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`).notNull()
 });
 
 // Tipi TypeScript inferiti
