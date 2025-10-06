@@ -15,19 +15,14 @@ export const fornitoreSchema = z.object({
 
 export type Fornitore = z.infer<typeof fornitoreSchema>;
 
-// Schema Articolo
+// Schema Articolo - Solo 3 campi essenziali
 export const articoloSchema = z.object({
   id: z.string().uuid(),
   nome: z.string().min(1, "Nome articolo è obbligatorio"),
   categoria: z.string().optional(),
-  unita: z.string().optional(),
-  confezione: z.string().optional(),
-  /** @deprecated Gestione giacenze disabilitata */
-  quantita_attuale: z.number().min(0, "Quantità non può essere negativa").optional(),
-  /** @deprecated Gestione giacenze disabilitata */
-  soglia_minima: z.number().min(0, "Soglia minima non può essere negativa").optional(),
-  fornitore_id: z.string().uuid(),
-  note: z.string().optional(),
+  fornitore_id: z.string().uuid().optional(),
+  created_at: z.date().optional(),
+  updated_at: z.date().optional(),
 });
 
 export type Articolo = z.infer<typeof articoloSchema>;

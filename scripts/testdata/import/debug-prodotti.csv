@@ -1,2 +1,3 @@
-Nome Prodotto,Categoria,Fornitore,Prezzo acquisto,Prezzo vendita
-Test Prodotto,Bevande,Test Supplier,"1,50","3,00"
+Nome Prodotto,Categoria,Fornitore
+Test Prodotto 3 Campi,Bevande,Test Supplier 3C
+Altro Prodotto,Alimentari,Fornitore Generico

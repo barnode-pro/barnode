@@ -10,22 +10,18 @@ import type { PaginatedResponse } from '../../utils/validate.js';
  * Include join con fornitori e filtri avanzati
  */
 
-export type ArticoloConFornitore = Omit<Articolo, 'quantita_attuale' | 'soglia_minima'> & {
-  /** @deprecated Gestione giacenze disabilitata */
-  quantita_attuale?: number;
-  /** @deprecated Gestione giacenze disabilitata */
-  soglia_minima?: number;
+export type ArticoloConFornitore = Articolo & {
   fornitore: {
     id: string;
     nome: string;
-  };
+  } | null;
 };
 
 export class ArticoliRepository {
   
   async getAll(filters: SearchArticoliInput): Promise<PaginatedResponse<ArticoloConFornitore>> {
     try {
-      const { search, categoria, fornitore_id, solo_scarsita, page, pageSize } = filters;
+      const { search, categoria, fornitore_id, page, pageSize } = filters;
       const offset = (page - 1) * pageSize;
 
       // Costruzione condizioni WHERE
@@ -49,26 +45,15 @@ export class ArticoliRepository {
         conditions.push(eq(articoli.fornitore_id, fornitore_id));
       }
       
-      // Filtro scarsità disabilitato - gestione giacenze rimossa
-      if (solo_scarsita) {
-        // Ignora filtro scarsità - funzionalità disabilitata
-      }
-
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-      // Query dati con join fornitore
+      // Query dati con join fornitore - Solo 3 campi essenziali
       const data = await db
         .select({
           id: articoli.id,
           nome: articoli.nome,
           categoria: articoli.categoria,
-          unita: articoli.unita,
-          confezione: articoli.confezione,
-          // quantita_attuale e soglia_minima rimossi - gestione disabilitata
-          prezzo_acquisto: articoli.prezzo_acquisto,
-          prezzo_vendita: articoli.prezzo_vendita,
           fornitore_id: articoli.fornitore_id,
-          note: articoli.note,
           created_at: articoli.created_at,
           updated_at: articoli.updated_at,
           fornitore: {
@@ -77,7 +62,7 @@ export class ArticoliRepository {
           }
         })
         .from(articoli)
-        .innerJoin(fornitori, eq(articoli.fornitore_id, fornitori.id))
+        .leftJoin(fornitori, eq(articoli.fornitore_id, fornitori.id))
         .where(whereClause)
         .orderBy(desc(articoli.created_at))
         .limit(pageSize)
@@ -87,7 +72,7 @@ export class ArticoliRepository {
       const [{ total }] = await db
         .select({ total: count() })
         .from(articoli)
-        .innerJoin(fornitori, eq(articoli.fornitore_id, fornitori.id))
+        .leftJoin(fornitori, eq(articoli.fornitore_id, fornitori.id))
         .where(whereClause);
 
       return {
@@ -111,14 +96,7 @@ export class ArticoliRepository {
           id: articoli.id,
           nome: articoli.nome,
           categoria: articoli.categoria,
-          unita: articoli.unita,
-          confezione: articoli.confezione,
-          quantita_attuale: articoli.quantita_attuale,
-          soglia_minima: articoli.soglia_minima,
-          prezzo_acquisto: articoli.prezzo_acquisto,
-          prezzo_vendita: articoli.prezzo_vendita,
           fornitore_id: articoli.fornitore_id,
-          note: articoli.note,
           created_at: articoli.created_at,
           updated_at: articoli.updated_at,
           fornitore: {
@@ -127,7 +105,7 @@ export class ArticoliRepository {
           }
         })
         .from(articoli)
-        .innerJoin(fornitori, eq(articoli.fornitore_id, fornitori.id))
+        .leftJoin(fornitori, eq(articoli.fornitore_id, fornitori.id))
         .where(eq(articoli.id, id))
         .limit(1);
 
@@ -162,18 +140,9 @@ export class ArticoliRepository {
   }
   async create(data: InsertArticoloInput): Promise<Articolo> {
     try {
-      // Conversione tipi per Drizzle - giacenze ignorate
-      const { quantita_attuale, soglia_minima, ...cleanData } = data;
-      const dbData = {
-        ...cleanData,
-        // Valori default per compatibilità DB (non esposti in API)
-        quantita_attuale: 0,
-        soglia_minima: 0
-      };
-
       const [newArticolo] = await db
         .insert(articoli)
-        .values(dbData)
+        .values(data)
         .returning();
 
       return newArticolo;
@@ -184,14 +153,7 @@ export class ArticoliRepository {
 
   async update(id: string, data: UpdateArticoloInput): Promise<Articolo> {
     try {
-      // Conversione tipi per Drizzle - giacenze ignorate
-      const { quantita_attuale, soglia_minima, ...cleanData } = data;
-      const dbData: any = { ...cleanData, updated_at: new Date() };
-      
-      // Log warning se arrivano campi giacenze (per debug)
-      if (quantita_attuale !== undefined || soglia_minima !== undefined) {
-        console.warn('Campi giacenze ignorati in update articolo:', { quantita_attuale, soglia_minima });
-      }
+      const dbData: any = { ...data, updated_at: new Date() };
 
       const [updatedArticolo] = await db
         .update(articoli)
@@ -242,8 +204,7 @@ export class ArticoliRepository {
       // Prepara i dati per l'update (solo campi presenti)
       const updateData: any = {};
       if (patch.categoria !== undefined) updateData.categoria = patch.categoria;
-      if (patch.prezzo_acquisto !== undefined) updateData.prezzo_acquisto = patch.prezzo_acquisto;
-      if (patch.prezzo_vendita !== undefined) updateData.prezzo_vendita = patch.prezzo_vendita;
+      if (patch.fornitore_id !== undefined) updateData.fornitore_id = patch.fornitore_id;
       updateData.updated_at = sql`(unixepoch())`;
 
       // Esegui bulk update

@@ -353,8 +353,7 @@ export class OrdiniRepository {
         articolo: {
           id: articoli.id,
           nome: articoli.nome,
-          unita: articoli.unita,
-          confezione: articoli.confezione
+          categoria: articoli.categoria
         }
       })
       .from(righeOrdine)

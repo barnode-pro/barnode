@@ -45,13 +45,11 @@ const googleSheetSchema = z.object({
   url: z.string().url('URL non valido')
 });
 
-// Mapping colonne con sinonimi (case-insensitive) - Allineato alla documentazione
+// Mapping colonne con sinonimi (case-insensitive) - Solo 3 campi essenziali
 const COLUMN_MAPPINGS = {
   nome: ['nome prodotto', 'nome', 'descrizione', 'prodotto'],
   categoria: ['categoria', 'reparto'],
-  fornitore: ['fornitore', 'supplier', 'marca'],
-  prezzo_acquisto: ['prezzo acquisto', 'acquisto', 'costo', "prezzo d'acquisto"],
-  prezzo_vendita: ['prezzo vendita', 'vendita', 'listino', 'prezzo']
+  fornitore: ['fornitore', 'supplier', 'marca']
 };
 
 // Flag debug per log dettagliati
@@ -70,8 +68,6 @@ interface ParsedProduct {
   nome: string;
   categoria: string | null;
   fornitore: string;
-  prezzo_acquisto: number | null;
-  prezzo_vendita: number | null;
 }
 
 interface ImportResult {
@@ -82,38 +78,6 @@ interface ImportResult {
   warnings: string[];
 }
 
-/**
- * Normalizza prezzo: rimuove €, spazi, separatori migliaia, converte virgola in punto
- */
-function parsePrezzo(input: string | number | null): number | null {
-  if (!input || input === '') return null;
-  
-  let str = String(input).trim();
-  if (!str) return null;
-  
-  // Rimuove simboli e spazi
-  str = str.replace(/[€$\s]/g, '');
-  
-  // Se contiene sia virgola che punto, assume che il punto sia separatore migliaia
-  if (str.includes(',') && str.includes('.')) {
-    const lastComma = str.lastIndexOf(',');
-    const lastDot = str.lastIndexOf('.');
-    
-    if (lastComma > lastDot) {
-      // Virgola è decimale: 1.234,56
-      str = str.replace(/\./g, '').replace(',', '.');
-    } else {
-      // Punto è decimale: 1,234.56
-      str = str.replace(/,/g, '');
-    }
-  } else if (str.includes(',')) {
-    // Solo virgola: assume decimale
-    str = str.replace(',', '.');
-  }
-  
-  const num = parseFloat(str);
-  return isNaN(num) ? null : num;
-}
 
 /**
  * Mappa headers con sinonimi case-insensitive
@@ -137,20 +101,10 @@ function mapHeaders(row: Record<string, any>): ParsedProduct | null {
     COLUMN_MAPPINGS.fornitore.includes(key.toLowerCase().trim())
   );
   
-  const prezzoAcquistoKey = Object.keys(row).find(key => 
-    COLUMN_MAPPINGS.prezzo_acquisto.includes(key.toLowerCase().trim())
-  );
-  
-  const prezzoVenditaKey = Object.keys(row).find(key => 
-    COLUMN_MAPPINGS.prezzo_vendita.includes(key.toLowerCase().trim())
-  );
-  
   return {
     nome: String(row[nomeKey]).trim().replace(/\s+/g, ' '),
     categoria: categoriaKey ? String(row[categoriaKey]).trim() || null : null,
-    fornitore: fornitoreKey ? String(row[fornitoreKey]).trim() || 'Fornitore Generico' : 'Fornitore Generico',
-    prezzo_acquisto: prezzoAcquistoKey ? parsePrezzo(row[prezzoAcquistoKey]) : null,
-    prezzo_vendita: prezzoVenditaKey ? parsePrezzo(row[prezzoVenditaKey]) : null
+    fornitore: fornitoreKey ? String(row[fornitoreKey]).trim() || 'Fornitore Generico' : 'Fornitore Generico'
   };
 }
 
@@ -222,11 +176,9 @@ async function importProducts(products: ParsedProduct[]): Promise<ImportResult> 
       );
       
       if (existingArticolo) {
-        // Update solo categoria e prezzi
+        // Update solo categoria
         await articoliRepo.update(existingArticolo.id, {
-          categoria: product.categoria === null ? undefined : product.categoria,
-          prezzo_acquisto: product.prezzo_acquisto === null ? undefined : product.prezzo_acquisto,
-          prezzo_vendita: product.prezzo_vendita === null ? undefined : product.prezzo_vendita
+          categoria: product.categoria === null ? undefined : product.categoria
         });
         result.aggiornati++;
       } else {
@@ -234,11 +186,7 @@ async function importProducts(products: ParsedProduct[]): Promise<ImportResult> 
         await articoliRepo.create({
           nome: product.nome,
           categoria: product.categoria === null ? undefined : product.categoria,
-          fornitore_id: fornitoreId,
-          prezzo_acquisto: product.prezzo_acquisto === null ? undefined : product.prezzo_acquisto,
-          prezzo_vendita: product.prezzo_vendita === null ? undefined : product.prezzo_vendita,
-          quantita_attuale: 0,
-          soglia_minima: 10
+          fornitore_id: fornitoreId
         });
         result.creati++;
       }
@@ -306,28 +254,6 @@ router.post('/prodotti', upload.single('file'), async (req, res, next) => {
       const row = rows[i];
       const product = mapHeaders(row);
       
-      // Log normalizzazione prezzi per la prima riga
-      if (i === 0 && product && isDebugMode()) {
-        const prezzoAcquistoKey = Object.keys(row).find(key => 
-          COLUMN_MAPPINGS.prezzo_acquisto.includes(key.toLowerCase().trim())
-        );
-        const prezzoVenditaKey = Object.keys(row).find(key => 
-          COLUMN_MAPPINGS.prezzo_vendita.includes(key.toLowerCase().trim())
-        );
-        
-        if (prezzoAcquistoKey || prezzoVenditaKey) {
-          debugLog('💰 Price normalization (first row)', {
-            prezzo_acquisto: {
-              original: prezzoAcquistoKey ? row[prezzoAcquistoKey] : 'N/A',
-              parsed: product.prezzo_acquisto
-            },
-            prezzo_vendita: {
-              original: prezzoVenditaKey ? row[prezzoVenditaKey] : 'N/A', 
-              parsed: product.prezzo_vendita
-            }
-          });
-        }
-      }
       
       if (product) {
         products.push(product);
