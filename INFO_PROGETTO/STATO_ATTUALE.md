@@ -56,6 +56,11 @@
 - Creata governance in vite.config.ts
 - Documentazione ICONS_GUIDE.md completa
 
+### 06/10/2025 - Header Visual Refresh
+- Logo centrato e ingrandito del 20% (h-12)
+- Ripristinato pulsante dark/light theme
+- Header persistente su tutte le pagine via AppShell
+
 ### 06/10/2025 - STEP 2 API Backend
 - Implementate API REST modulari Express + Drizzle
 - 18 endpoint /api/v1/ per articoli, fornitori, ordini

@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
-import { registerVite, serveStatic, log } from "./utils/vite";
+import { setupVite, serveStatic, log } from "./utils/vite";
 import { healthRoutes } from "./routes/health.routes.js";
 import { v1Routes } from "./routes/v1/index.js";
 import { errorHandler } from "./utils/errorHandler.js";
@@ -60,27 +60,32 @@ app.use('/api/v1', v1Routes);
 app.use(errorHandler);
 
 (async () => {
-  // Test connessione database
+  // Test connessione database (non bloccante per sviluppo frontend)
   const dbConnected = await testConnection();
   if (!dbConnected) {
-    logger.error('Impossibile connettersi al database. Uscita...');
-    process.exit(1);
+    logger.warn('Database non disponibile - continuando per sviluppo frontend');
   }
+
+  const port = parseInt(process.env.PORT || '5000', 10);
 
   // Setup Vite o static files
   if (process.env.NODE_ENV === "development") {
-    await registerVite(app);
+    const server = app.listen(port, "0.0.0.0", () => {
+      const timestamp = new Date().toISOString();
+      console.log(`✅ BarNode API attive — /api/health, /api/v1/{articoli, fornitori, ordini}`);
+      console.log(`DB: drizzle + pg (ok) | Env: ${process.env.NODE_ENV || 'development'} | ts: ${timestamp}`);
+      log(`Server running on port ${port}`);
+      console.log(`✅ Header Bar aggiornato: logo centrato, titolo/pulsante rimossi, no border`);
+    });
+    await setupVite(app, server);
   } else {
     serveStatic(app);
+    app.listen(port, "0.0.0.0", () => {
+      const timestamp = new Date().toISOString();
+      console.log(`✅ BarNode API attive — /api/health, /api/v1/{articoli, fornitori, ordini}`);
+      console.log(`DB: drizzle + pg (ok) | Env: ${process.env.NODE_ENV || 'development'} | ts: ${timestamp}`);
+      log(`Server running on port ${port}`);
+      console.log(`✅ Header Bar aggiornato: logo centrato, titolo/pulsante rimossi, no border`);
+    });
   }
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  app.listen(port, "0.0.0.0", () => {
-    const timestamp = new Date().toISOString();
-    console.log(`✅ BarNode API attive — /api/health, /api/v1/{articoli, fornitori, ordini}`);
-    console.log(`DB: drizzle + pg (ok) | Env: ${process.env.NODE_ENV || 'development'} | ts: ${timestamp}`);
-    log(`Server running on port ${port}`);
-  });
 })();

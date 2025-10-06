@@ -1,32 +1,32 @@
 import { ThemeToggle } from "@/components/ThemeToggle";
-import MenuIcon from "~icons/tabler/menu-2";
 
 /**
- * Header - Intestazione dell'applicazione
- * Contiene logo, navigazione e controlli utente
+ * Header - Barra superiore dell'applicazione
+ * Logo centrato, pulsante theme a destra, design pulito
  */
 export function Header() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
+    <header 
+      className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm pt-[env(safe-area-inset-top)]"
+      role="banner"
+    >
+      <div className="container mx-auto px-4 h-16 relative flex items-center">
+        {/* Spaziatore sinistro per centraggio perfetto */}
+        <div className="w-10"></div>
+        
+        {/* Logo centrato - aumentato del 20% */}
+        <div className="absolute inset-x-0 flex justify-center items-center">
           <img 
             src="/logo.png" 
             alt="Logo BarNode" 
-            className="h-8 w-auto"
+            aria-label="Logo BarNode"
+            className="h-12 w-auto"
+            draggable="false"
           />
-          <h1 className="text-xl font-semibold text-foreground">
-            BarNode
-          </h1>
         </div>
         
-        <div className="flex items-center space-x-4">
-          <button 
-            className="md:hidden p-2 rounded-lg hover:bg-muted/50 transition-colors"
-            aria-label="Menu"
-          >
-            <MenuIcon className="h-5 w-5 text-foreground" />
-          </button>
+        {/* Pulsante Theme Toggle a destra */}
+        <div className="w-10 ml-auto flex justify-end">
           <ThemeToggle />
         </div>
       </div>
