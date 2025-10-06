@@ -1,8 +1,10 @@
 import { PageContainer } from "@/components/layout/PageContainer";
+import OrdiniDaFareSection from "./components/OrdiniDaFareSection";
+import CatalogoSection from "./components/CatalogoSection";
 
 /**
  * HomePage - Pagina principale dell'applicazione BarNode
- * Dashboard con panoramica generale del sistema
+ * Dashboard con panoramica generale e accesso rapido alle funzionalità
  */
 export default function HomePage() {
   return (
@@ -13,15 +15,15 @@ export default function HomePage() {
             BarNode
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Dashboard principale per il monitoraggio e gestione del ciclo ordini. 
-            Da qui puoi accedere a tutte le funzionalità principali dell'applicazione.
+            Dashboard principale per la gestione del tuo bar. 
+            Aggiungi articoli alle bozze ordini e gestisci i tuoi fornitori.
           </p>
         </div>
         
-        <div className="bg-muted/30 rounded-lg p-8 text-center">
-          <p className="text-muted-foreground">
-            Sezione in preparazione - Dashboard e statistiche verranno implementate nei prossimi step
-          </p>
+        {/* Sezioni principali */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <OrdiniDaFareSection />
+          <CatalogoSection />
         </div>
       </div>
     </PageContainer>

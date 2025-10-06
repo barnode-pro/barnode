@@ -282,4 +282,51 @@ router.delete('/:id',
   }
 );
 
-export { router as ordiniRoutes };
+// POST /api/v1/ordini/drafts/add-item - Aggiungi articolo a bozza ordine
+const addItemToDraftSchema = z.object({
+  articoloId: z.string().uuid('Articolo ID deve essere un UUID valido'),
+  qty: z.number().min(1, 'Quantità deve essere almeno 1').optional().default(1)
+});
+
+router.post('/drafts/add-item',
+  validateBody(addItemToDraftSchema),
+  async (req, res, next) => {
+    try {
+      const { articoloId, qty } = req.body;
+      const result = await ordiniRepo.addItemToDraft(articoloId, qty);
+      
+      logger.info('Articolo aggiunto a bozza ordine', { 
+        articoloId, 
+        qty, 
+        ordineId: result.ordineId,
+        fornitore: result.fornitoreNome 
+      });
+      
+      res.json({
+        success: true,
+        data: result,
+        message: `Articolo aggiunto alla bozza di ${result.fornitoreNome}`
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// GET /api/v1/ordini/drafts/count - Conteggio bozze ordini
+router.get('/drafts/count',
+  async (req, res, next) => {
+    try {
+      const count = await ordiniRepo.getDraftsCount();
+      
+      res.json({
+        success: true,
+        data: count
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+export default router;

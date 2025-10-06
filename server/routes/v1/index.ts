@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { articoliRoutes } from './articoli.routes.js';
 import { fornitoriRoutes } from './fornitori.routes.js';
-import { ordiniRoutes } from './ordini.routes.js';
+import ordiniRoutes from './ordini.routes.js';
 
 /**
  * Router principale per API v1 BarNode

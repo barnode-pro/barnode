@@ -361,6 +361,138 @@ export class OrdiniRepository {
       .innerJoin(articoli, eq(righeOrdine.articolo_id, articoli.id))
       .where(eq(righeOrdine.ordine_id, ordineId));
   }
+
+  /**
+   * Aggiungi articolo a bozza ordine (trova o crea ordine bozza per fornitore)
+   */
+  async addItemToDraft(articoloId: string, qty: number = 1): Promise<{
+    ordineId: string;
+    fornitoreNome: string;
+    righeCount: number;
+  }> {
+    try {
+      // 1. Trova fornitore dell'articolo
+      const [articolo] = await db
+        .select({
+          fornitore_id: articoli.fornitore_id,
+          fornitore_nome: fornitori.nome
+        })
+        .from(articoli)
+        .innerJoin(fornitori, eq(articoli.fornitore_id, fornitori.id))
+        .where(eq(articoli.id, articoloId))
+        .limit(1);
+
+      if (!articolo) {
+        throw new NotFoundError('Articolo', articoloId);
+      }
+
+      // 2. Trova o crea ordine bozza per questo fornitore
+      let [ordine] = await db
+        .select()
+        .from(ordini)
+        .where(and(
+          eq(ordini.fornitore_id, articolo.fornitore_id),
+          eq(ordini.stato, 'bozza')
+        ))
+        .limit(1);
+
+      if (!ordine) {
+        // Crea nuovo ordine bozza
+        [ordine] = await db
+          .insert(ordini)
+          .values({
+            fornitore_id: articolo.fornitore_id,
+            stato: 'bozza',
+            note: 'Bozza creata automaticamente'
+          })
+          .returning();
+      }
+
+      // 3. Upsert riga ordine
+      const [rigaEsistente] = await db
+        .select()
+        .from(righeOrdine)
+        .where(and(
+          eq(righeOrdine.ordine_id, ordine.id),
+          eq(righeOrdine.articolo_id, articoloId)
+        ))
+        .limit(1);
+
+      if (rigaEsistente) {
+        // Incrementa quantità esistente
+        await db
+          .update(righeOrdine)
+          .set({
+            qta_ordinata: Number(rigaEsistente.qta_ordinata) + qty,
+            updated_at: new Date()
+          })
+          .where(eq(righeOrdine.id, rigaEsistente.id));
+      } else {
+        // Crea nuova riga
+        await db
+          .insert(righeOrdine)
+          .values({
+            ordine_id: ordine.id,
+            articolo_id: articoloId,
+            qta_ordinata: qty,
+            qta_ricevuta: 0
+          });
+      }
+
+      // 4. Conta righe totali nell'ordine
+      const [{ count }] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(righeOrdine)
+        .where(eq(righeOrdine.ordine_id, ordine.id));
+
+      return {
+        ordineId: ordine.id,
+        fornitoreNome: articolo.fornitore_nome,
+        righeCount: Number(count)
+      };
+    } catch (error) {
+      if (error instanceof NotFoundError) throw error;
+      throw new DatabaseError('Errore aggiunta articolo a bozza', error as Error);
+    }
+  }
+
+  /**
+   * Conteggio bozze ordini per badge
+   */
+  async getDraftsCount(): Promise<{
+    totalDrafts: number;
+    perFornitore: Array<{ fornitoreId: string; count: number; }>;
+  }> {
+    try {
+      // Conta righe totali in bozze
+      const [{ totalDrafts }] = await db
+        .select({ totalDrafts: sql<number>`count(*)` })
+        .from(righeOrdine)
+        .innerJoin(ordini, eq(righeOrdine.ordine_id, ordini.id))
+        .where(eq(ordini.stato, 'bozza'));
+
+      // Conta per fornitore
+      const perFornitore = await db
+        .select({
+          fornitoreId: ordini.fornitore_id,
+          count: sql<number>`count(*)`
+        })
+        .from(righeOrdine)
+        .innerJoin(ordini, eq(righeOrdine.ordine_id, ordini.id))
+        .where(eq(ordini.stato, 'bozza'))
+        .groupBy(ordini.fornitore_id);
+
+      return {
+        totalDrafts: Number(totalDrafts) || 0,
+        perFornitore: perFornitore.map(p => ({
+          fornitoreId: p.fornitoreId,
+          count: Number(p.count)
+        }))
+      };
+    } catch (error) {
+      throw new DatabaseError('Errore conteggio bozze', error as Error);
+    }
+  }
 }
 
 export const ordiniRepo = new OrdiniRepository();

@@ -10,7 +10,7 @@ import { fornitori } from './fornitore';
  */
 
 // Enum per stati ordine
-export const StatoOrdineEnum = z.enum(['nuovo', 'inviato', 'in_ricezione', 'archiviato']);
+export const StatoOrdineEnum = z.enum(['bozza', 'nuovo', 'inviato', 'in_ricezione', 'archiviato']);
 export type StatoOrdine = z.infer<typeof StatoOrdineEnum>;
 
 export const ordini = sqliteTable('ordini', {

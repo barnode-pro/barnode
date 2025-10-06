@@ -91,6 +91,22 @@ export class OrdiniService {
   async generaOrdiniAutomatici(): Promise<ApiResponse<OrdineCompleto[]>> {
     return apiClient.post<OrdineCompleto[]>('/ordini/auto', {});
   }
+
+  // Nuove funzionalità STEP 5.1 - Bozze ordini
+  async addItemToDraft(articoloId: string, qty: number = 1): Promise<ApiResponse<{
+    ordineId: string;
+    fornitoreNome: string;
+    righeCount: number;
+  }>> {
+    return apiClient.post('/ordini/drafts/add-item', { articoloId, qty });
+  }
+
+  async getDraftsCount(): Promise<ApiResponse<{
+    totalDrafts: number;
+    perFornitore: Array<{ fornitoreId: string; count: number; }>;
+  }>> {
+    return apiClient.get('/ordini/drafts/count');
+  }
 }
 
 export const ordiniService = new OrdiniService();
