@@ -166,10 +166,35 @@ Tutte le funzionalità richieste sono state implementate e testate:
 
 Il sistema è ora pronto per la produzione con un flusso ordini end-to-end completo.
 
+## 📎 APPENDICE: MIGRAZIONE SUPABASE
+
+**Data aggiornamento:** 06/10/2025  
+**Status:** ✅ PREPARATA
+
+### Migrazione PostgreSQL Completata
+- **Schemi PostgreSQL** creati in `server/db/schema/postgres/`
+- **Migrazioni SQL** pronte in `migrations/postgres/`
+- **Script seed** PostgreSQL in `scripts/seed-database-postgres.ts`
+- **Documentazione** completa in `DOCS/DB_SUPABASE_SETUP.md`
+
+### File Preparati
+- `migrations/postgres/0001_initial_schema.sql` - Schema completo
+- `migrations/postgres/0002_seed_data.sql` - Dati demo
+- `DOCS/DB_SUPABASE_SETUP.md` - Guida setup (≤200 righe)
+- `scripts/seed-database-postgres.ts` - Seed programmatico
+
+### Configurazione
+- `drizzle.config.ts` - Supporta PostgreSQL e SQLite
+- `.env.example` - Aggiornato con DATABASE_URL Supabase
+- `package.json` - Script `db:seed:postgres` aggiunto
+
+### Pronto per Deploy
+Il sistema può ora essere deployato su Supabase seguendo la guida in `DB_SUPABASE_SETUP.md`.
+
 ---
 
 **Prossimi passi suggeriti:**
+- Applicare migrazioni su Supabase
+- Testare con DATABASE_URL PostgreSQL
 - Implementare UI componenti per ricezione
-- Aggiungere notifiche toast
-- Completare integrazione WhatsApp
 - Deploy in produzione

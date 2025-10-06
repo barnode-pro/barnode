@@ -17,6 +17,8 @@ export interface ArticoliFilters {
 }
 
 export interface ArticoloConFornitore extends Omit<Articolo, 'fornitore_id'> {
+  prezzo_acquisto?: number | null;
+  prezzo_vendita?: number | null;
   fornitore: {
     id: string;
     nome: string;

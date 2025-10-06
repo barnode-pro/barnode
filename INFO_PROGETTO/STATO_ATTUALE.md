@@ -92,34 +92,11 @@
 - Rimossi plugin e configurazioni Replit
 - Configurato sviluppo locale macOS
 - Sistema backup con rotazione
-- Branding BarNode centralizzato
-
----
-
-## 🎯 OBIETTIVI PROSSIMI
-
-### STEP 2 - API Backend (Priorità Alta)
-- Implementazione endpoint REST
-- Schema database Drizzle ORM
-- Validazione dati server-side
-- Gestione errori centralizzata
-
-### STEP 3 - CRUD Articoli (Priorità Alta)
-- Gestione inventario completa
-- Filtri e ricerca avanzata
-- Alert scorte minime
-- Integrazione con fornitori
-
-### STEP 4 - Sistema Ordini (Priorità Media)
-- Creazione automatica da scorte
-- Invio WhatsApp funzionante
-- Tracking stati ordine
 - Template messaggi
 
 ### STEP 5-7 - Funzionalità Avanzate
 - Gestione fornitori completa
 - Sistema ricezione merce
-- Dashboard analytics
 - Ottimizzazioni performance
 
 ---

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { articoliRepo } from '../../db/repositories/articoli.repo.js';
-import { insertArticoloSchema, updateArticoloSchema, searchArticoliSchema } from '../../db/schema/articolo.js';
+import { insertArticoloSchema, updateArticoloSchema, searchArticoliSchema, bulkEditArticoliSchema } from '../../db/schema/articolo.js';
 import { validateBody, validateParams, validateQuery, idParamsSchema } from '../../utils/validate.js';
 import { logger } from '../../utils/logger.js';
 
@@ -121,6 +121,31 @@ router.delete('/:id',
       res.json({
         success: true,
         message: 'Articolo eliminato con successo'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+// PATCH /api/v1/articoli/bulk - Bulk edit articoli (categoria, prezzi)
+router.patch('/bulk',
+  validateBody(bulkEditArticoliSchema),
+  async (req, res, next) => {
+    try {
+      const data = req.body;
+      const result = await articoliRepo.bulkEdit(data);
+      
+      logger.info('Bulk edit articoli eseguito', { 
+        ids: data.ids,
+        patch: data.patch,
+        updated: result.updated
+      });
+      
+      res.json({
+        success: true,
+        message: `${result.updated} articoli aggiornati con successo`,
+        data: result
       });
     } catch (error) {
       next(error);

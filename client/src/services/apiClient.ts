@@ -81,6 +81,16 @@ class ApiClient {
   }
 
   /**
+   * Metodo PATCH generico
+   */
+  async patch<T>(endpoint: string, data: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
    * Metodo DELETE generico
    */
   async del<T>(endpoint: string): Promise<ApiResponse<T>> {

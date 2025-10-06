@@ -9,6 +9,7 @@ import ArticoliPage from "@/pages/Articoli/ArticoliPage";
 import FornitoriPage from "@/pages/Fornitori/FornitoriPage";
 import OrdiniPage from "@/pages/Ordini/OrdiniPage";
 import RicezionePage from "@/pages/Ricezione/RicezionePage";
+import DatabasePage from "@/pages/Database/DatabasePage";
 import NotFoundPage from "@/pages/NotFound/NotFoundPage";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/fornitori" component={FornitoriPage} />
       <Route path="/ordini" component={OrdiniPage} />
       <Route path="/ricezione" component={RicezionePage} />
+      <Route path="/database" component={DatabasePage} />
       <Route component={NotFoundPage} />
     </Switch>
   );

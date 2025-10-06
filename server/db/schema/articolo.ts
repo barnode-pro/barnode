@@ -17,6 +17,8 @@ export const articoli = sqliteTable('articoli', {
   confezione: text('confezione'),
   quantita_attuale: real('quantita_attuale').default(0).notNull(),
   soglia_minima: real('soglia_minima').default(0).notNull(),
+  prezzo_acquisto: real('prezzo_acquisto'), // Nuovo campo per import Excel
+  prezzo_vendita: real('prezzo_vendita'),   // Nuovo campo per import Excel
   fornitore_id: text('fornitore_id').references(() => fornitori.id).notNull(),
   note: text('note'),
   created_at: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`).notNull(),
@@ -39,6 +41,8 @@ export const insertArticoloSchema = createInsertSchema(articoli, {
   confezione: z.string().optional(),
   quantita_attuale: z.coerce.number().min(0, 'Quantità non può essere negativa'),
   soglia_minima: z.coerce.number().min(0, 'Soglia minima non può essere negativa'),
+  prezzo_acquisto: z.coerce.number().min(0, 'Prezzo acquisto non può essere negativo').optional(),
+  prezzo_vendita: z.coerce.number().min(0, 'Prezzo vendita non può essere negativo').optional(),
   fornitore_id: z.string().uuid('Fornitore ID deve essere un UUID valido'),
   note: z.string().optional()
 }).omit({
@@ -64,3 +68,15 @@ export const searchArticoliSchema = z.object({
 export type InsertArticoloInput = z.infer<typeof insertArticoloSchema>;
 export type UpdateArticoloInput = z.infer<typeof updateArticoloSchema>;
 export type SearchArticoliInput = z.infer<typeof searchArticoliSchema>;
+
+// Schema per bulk edit (solo categoria e prezzi)
+export const bulkEditArticoliSchema = z.object({
+  ids: z.array(z.string().uuid('ID deve essere un UUID valido')).min(1, 'Almeno un ID richiesto'),
+  patch: z.object({
+    categoria: z.string().optional(),
+    prezzo_acquisto: z.coerce.number().min(0, 'Prezzo acquisto non può essere negativo').optional(),
+    prezzo_vendita: z.coerce.number().min(0, 'Prezzo vendita non può essere negativo').optional()
+  }).refine(data => Object.keys(data).length > 0, 'Almeno un campo da aggiornare richiesto')
+});
+
+export type BulkEditArticoliInput = z.infer<typeof bulkEditArticoliSchema>;

@@ -1,6 +1,6 @@
 /**
- * Export unificato di tutti gli schemi database BarNode
- * Configurazione Drizzle ORM per PostgreSQL
+ * Schema Drizzle unificato per BarNode
+ * Esporta tutti gli schemi e tipi per SQLite
  */
 
 // Export schemi tabelle
@@ -15,21 +15,13 @@ import { articoli } from './articolo';
 import { ordini } from './ordine';
 import { righeOrdine } from './rigaOrdine';
 
-// Export oggetto con tutte le tabelle per Drizzle
+// Export schema completo per Drizzle client
 export const schema = {
   fornitori,
   articoli,
   ordini,
-  righeOrdine,
+  righeOrdine
 };
-
-// Export tipi unificati
-export type {
-  Fornitore,
-  InsertFornitore,
-  InsertFornitoreInput,
-  UpdateFornitoreInput
-} from './fornitore.js';
 
 export type {
   Articolo,

@@ -1,6 +1,6 @@
-import { eq, ilike, or, count, desc, sql, and, lt } from 'drizzle-orm';
+import { eq, ilike, or, count, desc, sql, and, lt, inArray } from 'drizzle-orm';
 import { db } from '../client.js';
-import { articoli, type Articolo, type InsertArticoloInput, type UpdateArticoloInput, type SearchArticoliInput } from '../schema/articolo.js';
+import { articoli, type Articolo, type InsertArticoloInput, type UpdateArticoloInput, type SearchArticoliInput, type BulkEditArticoliInput } from '../schema/articolo.js';
 import { fornitori } from '../schema/fornitore.js';
 import { NotFoundError, DatabaseError } from '../../utils/errors.js';
 import type { PaginatedResponse } from '../../utils/validate.js';
@@ -61,6 +61,8 @@ export class ArticoliRepository {
           confezione: articoli.confezione,
           quantita_attuale: articoli.quantita_attuale,
           soglia_minima: articoli.soglia_minima,
+          prezzo_acquisto: articoli.prezzo_acquisto,
+          prezzo_vendita: articoli.prezzo_vendita,
           fornitore_id: articoli.fornitore_id,
           note: articoli.note,
           created_at: articoli.created_at,
@@ -109,6 +111,8 @@ export class ArticoliRepository {
           confezione: articoli.confezione,
           quantita_attuale: articoli.quantita_attuale,
           soglia_minima: articoli.soglia_minima,
+          prezzo_acquisto: articoli.prezzo_acquisto,
+          prezzo_vendita: articoli.prezzo_vendita,
           fornitore_id: articoli.fornitore_id,
           note: articoli.note,
           created_at: articoli.created_at,
@@ -193,6 +197,40 @@ export class ArticoliRepository {
     } catch (error) {
       if (error instanceof NotFoundError) throw error;
       throw new DatabaseError('Errore eliminazione articolo', error as Error);
+    }
+  }
+
+  async bulkEdit(data: BulkEditArticoliInput): Promise<{ updated: number }> {
+    try {
+      const { ids, patch } = data;
+      
+      // Verifica che gli articoli esistano
+      const existingArticoli = await db
+        .select({ id: articoli.id })
+        .from(articoli)
+        .where(inArray(articoli.id, ids));
+      
+      if (existingArticoli.length !== ids.length) {
+        throw new NotFoundError('Alcuni articoli non trovati');
+      }
+
+      // Prepara i dati per l'update (solo campi presenti)
+      const updateData: any = {};
+      if (patch.categoria !== undefined) updateData.categoria = patch.categoria;
+      if (patch.prezzo_acquisto !== undefined) updateData.prezzo_acquisto = patch.prezzo_acquisto;
+      if (patch.prezzo_vendita !== undefined) updateData.prezzo_vendita = patch.prezzo_vendita;
+      updateData.updated_at = sql`(unixepoch())`;
+
+      // Esegui bulk update
+      await db
+        .update(articoli)
+        .set(updateData)
+        .where(inArray(articoli.id, ids));
+
+      return { updated: ids.length };
+    } catch (error) {
+      if (error instanceof NotFoundError) throw error;
+      throw new DatabaseError('Errore bulk edit articoli', error as Error);
     }
   }
 }

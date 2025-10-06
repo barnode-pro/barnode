@@ -36,6 +36,7 @@ export const ordineSchema = z.object({
   fornitore_id: z.string().uuid(),
   data: z.date(),
   stato: StatoOrdineEnum,
+  note: z.string().optional(),
 });
 
 export type Ordine = z.infer<typeof ordineSchema>;
