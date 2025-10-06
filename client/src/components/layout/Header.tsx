@@ -1,4 +1,5 @@
 import { ThemeToggle } from "@/components/ThemeToggle";
+import MenuIcon from "~icons/tabler/menu-2";
 
 /**
  * Header - Intestazione dell'applicazione
@@ -20,6 +21,12 @@ export function Header() {
         </div>
         
         <div className="flex items-center space-x-4">
+          <button 
+            className="md:hidden p-2 rounded-lg hover:bg-muted/50 transition-colors"
+            aria-label="Menu"
+          >
+            <MenuIcon className="h-5 w-5 text-foreground" />
+          </button>
           <ThemeToggle />
         </div>
       </div>

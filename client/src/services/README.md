@@ -2,12 +2,17 @@
 
 Questa cartella contiene i servizi per la comunicazione con API e gestione dati.
 
-## Contenuto
+## Contenuto STEP 1
 
-- Client API per comunicazione con backend
-- Gestione storage locale (localStorage, sessionStorage)
+- `apiClient.ts` - Client HTTP unificato per backend (placeholder)
+- `whatsapp.ts` - Generatore link WhatsApp per ordini (placeholder)
+
+## Implementazioni Future
+
+- Storage locale (localStorage, sessionStorage)
 - Servizi di autenticazione e autorizzazione
 - Cache e gestione stato remoto
+- Servizi specifici per entità (articoli, fornitori, ordini)
 
 ## Convenzioni
 
@@ -16,3 +21,4 @@ Questa cartella contiene i servizi per la comunicazione con API e gestione dati.
 - Gestione errori centralizzata
 - Tipizzazione completa delle response API
 - Export named per tutte le funzioni pubbliche
+- Placeholder console.log per debugging in sviluppo

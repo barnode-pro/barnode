@@ -1,0 +1,39 @@
+// Re-export dei tipi condivisi
+export * from "@shared/types/schema";
+
+// Tipi specifici del client
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+}
+
+export interface ApiError {
+  message: string;
+  code?: string;
+  details?: Record<string, any>;
+}
+
+// Tipi per lo stato dell'applicazione
+export interface AppState {
+  isLoading: boolean;
+  error: string | null;
+}
+
+// Tipi per la navigazione
+export type NavRoute = "/" | "/articoli" | "/fornitori" | "/ordini" | "/ricezione";
+
+// Tipi per i filtri e ricerca
+export interface FiltroArticoli {
+  categoria?: string;
+  fornitore_id?: string;
+  solo_scarsita?: boolean;
+  ricerca?: string;
+}
+
+export interface FiltroOrdini {
+  stato?: import("@shared/types/schema").StatoOrdine;
+  fornitore_id?: string;
+  data_da?: Date;
+  data_a?: Date;
+}

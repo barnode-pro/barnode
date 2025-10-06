@@ -58,14 +58,23 @@ barnode_main/
 │   │   └── README.md       # Convenzioni database
 │   └── utils/              # Helper e middleware
 │       ├── vite.ts         # Integrazione Vite dev
-│       └── README.md       # Convenzioni utilities
 ├── shared/                 # Codice condiviso frontend/backend
 │   └── types/              # Schemi e tipizzazioni
 │       ├── schema.ts       # Schemi Zod validazione
 │       ├── index.ts        # Export centralizzato
 │       └── README.md       # Convenzioni tipi
-├── DOCS/                   # Documentazione progetto
-│   ├── REPORT_IMPORT_BARNODE.md      # Report analisi import
+├── DOCS/                   # Documentazione tecnica dettagliata
+│   ├── ARCHITETTURA_BARNODE.md      # Questo documento
+│   ├── ICONS_GUIDE.md               # Standard icone
+│   ├── REPORT_IMPORT_BARNODE.md     # Report analisi import
+│   └── REPORT_STEP_1.md             # Fondamenta modulari
+├── INFO_PROGETTO/          # File informativi governance (CONSULTARE SEMPRE)
+│   ├── STRUTTURA_PROGETTO.md        # Schema cartelle e navigazione
+│   ├── FUNZIONALITÀ_APP.md          # Stato moduli e roadmap
+│   ├── SETUP_TECNICO.md             # Stack e configurazioni
+│   ├── STANDARD_GOVERNANCE.md       # Regole sviluppo (200 righe max)
+│   ├── STATO_ATTUALE.md             # Snapshot corrente
+│   └── README.md                    # Scopo cartella
 │   └── ARCHITETTURA_BARNODE.md       # Questo documento
 └── Configurazioni root
     ├── package.json        # Dipendenze e script
@@ -98,16 +107,17 @@ barnode_main/
 ### CSS e Styling
 - **Classi CSS:** Tailwind utility classes
 - **Variabili CSS:** `--kebab-case` (es. `--bn-green`, `--primary-color`)
-- **Componenti Styled:** `PascalCase` (es. `StyledButton`, `CardContainer`)
 
 ---
 
 ## 🔧 REGOLE DI MODULARITÀ
 
-### Dimensioni File
-- **Massimo 300-400 righe** per file TypeScript/TSX
-- **Massimo 150 righe** per componenti React semplici
-- **Suddivisione obbligatoria** oltre 500 righe
+### Regole Modularità
+
+- **Massimo 200 righe** per file (NUOVA POLICY)
+- **Split obbligatorio** se superato
+- **Eccezioni** solo per configurazioni complesse
+- **Riferimento:** `INFO_PROGETTO/STANDARD_GOVERNANCE.md`
 
 ### Organizzazione Imports
 ```typescript

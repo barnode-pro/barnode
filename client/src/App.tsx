@@ -3,15 +3,23 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import HomePage from "@/pages/HomePage";
-import NotFound from "@/pages/not-found";
+import { AppShell } from "@/app/AppShell";
+import HomePage from "@/pages/Home/HomePage";
+import ArticoliPage from "@/pages/Articoli/ArticoliPage";
+import FornitoriPage from "@/pages/Fornitori/FornitoriPage";
+import OrdiniPage from "@/pages/Ordini/OrdiniPage";
+import RicezionePage from "@/pages/Ricezione/RicezionePage";
+import NotFoundPage from "@/pages/NotFound/NotFoundPage";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
-      <Route component={NotFound} />
+      <Route path="/articoli" component={ArticoliPage} />
+      <Route path="/fornitori" component={FornitoriPage} />
+      <Route path="/ordini" component={OrdiniPage} />
+      <Route path="/ricezione" component={RicezionePage} />
+      <Route component={NotFoundPage} />
     </Switch>
   );
 }
@@ -20,12 +28,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="relative min-h-screen">
-          <div className="fixed top-4 right-4 z-50">
-            <ThemeToggle />
-          </div>
+        <AppShell>
           <Router />
-        </div>
+        </AppShell>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
