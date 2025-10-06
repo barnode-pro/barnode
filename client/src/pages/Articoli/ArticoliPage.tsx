@@ -87,9 +87,9 @@ export default function ArticoliPage() {
   return (
     <PageContainer>
       <ErrorBoundary>
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
+        <div className="h-screen flex flex-col">
+          {/* Header - Fisso */}
+          <div className="flex-shrink-0 flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl font-bold text-foreground">Articoli</h1>
               <p className="text-muted-foreground">
@@ -110,8 +110,8 @@ export default function ArticoliPage() {
             </div>
           </div>
 
-          {/* Filtri e Ricerca */}
-          <Card>
+          {/* Filtri e Ricerca - Fisso */}
+          <Card className="flex-shrink-0 mb-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <SearchIcon className="h-5 w-5" />
@@ -153,9 +153,9 @@ export default function ArticoliPage() {
             </CardContent>
           </Card>
 
-          {/* Lista Articoli */}
-          <Card>
-            <CardHeader>
+          {/* Lista Articoli - Scrollabile */}
+          <Card className="flex-1 flex flex-col min-h-0">
+            <CardHeader className="flex-shrink-0">
               <CardTitle className="flex items-center gap-2">
                 <BoxIcon className="h-5 w-5" />
                 Inventario ({pagination.total})
@@ -164,7 +164,7 @@ export default function ArticoliPage() {
                 Catalogo articoli dell'attività
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1 overflow-hidden">
               {loading ? (
                 <div className="text-center py-8">Caricamento...</div>
               ) : articoli.length === 0 ? (
@@ -172,7 +172,7 @@ export default function ArticoliPage() {
                   Nessun articolo trovato
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="h-full overflow-y-auto space-y-4 pr-2">
                   {articoli.map((articolo) => (
                     <div
                       key={articolo.id}
