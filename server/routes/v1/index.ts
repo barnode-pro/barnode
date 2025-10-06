@@ -91,7 +91,8 @@ router.get('/', (req, res) => {
     endpoints: {
       articoli: '/api/v1/articoli',
       fornitori: '/api/v1/fornitori', 
-      ordini: '/api/v1/ordini'
+      ordini: '/api/v1/ordini',
+      import: '/api/v1/import'
     },
     documentation: 'https://github.com/barnode-pro/barnode'
   });
