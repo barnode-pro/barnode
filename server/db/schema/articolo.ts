@@ -39,8 +39,10 @@ export const insertArticoloSchema = createInsertSchema(articoli, {
   categoria: z.string().optional(),
   unita: z.string().optional(),
   confezione: z.string().optional(),
-  quantita_attuale: z.coerce.number().min(0, 'Quantità non può essere negativa'),
-  soglia_minima: z.coerce.number().min(0, 'Soglia minima non può essere negativa'),
+  /** @deprecated Gestione giacenze disabilitata */
+  quantita_attuale: z.coerce.number().min(0, 'Quantità non può essere negativa').optional(),
+  /** @deprecated Gestione giacenze disabilitata */
+  soglia_minima: z.coerce.number().min(0, 'Soglia minima non può essere negativa').optional(),
   prezzo_acquisto: z.coerce.number().min(0, 'Prezzo acquisto non può essere negativo').optional(),
   prezzo_vendita: z.coerce.number().min(0, 'Prezzo vendita non può essere negativo').optional(),
   fornitore_id: z.string().uuid('Fornitore ID deve essere un UUID valido'),

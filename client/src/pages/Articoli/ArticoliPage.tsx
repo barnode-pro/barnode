@@ -40,7 +40,7 @@ export default function ArticoliPage() {
   const { fornitori } = useFornitori();
 
   // Estrai categorie uniche dagli articoli
-  const categorie = Array.from(new Set(articoli.map(a => a.categoria).filter(Boolean)));
+  const categorie = Array.from(new Set(articoli.map(a => a.categoria).filter(Boolean))) as string[];
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -151,7 +151,7 @@ export default function ArticoliPage() {
                 Inventario ({pagination.total})
               </CardTitle>
               <CardDescription>
-                Articoli disponibili e relative scorte
+                Catalogo articoli dell'attività
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -178,14 +178,7 @@ export default function ArticoliPage() {
                         )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <Badge variant="outline">
-                          {articolo.quantita_attuale} {articolo.unita}
-                        </Badge>
-                        <Badge 
-                          variant={Number(articolo.quantita_attuale) <= Number(articolo.soglia_minima) ? "destructive" : "secondary"}
-                        >
-                          Soglia: {articolo.soglia_minima}
-                        </Badge>
+                        {/* Badge giacenze rimossi - gestione disabilitata */}
                         <div className="flex gap-2">
                           <Button
                             size="sm"

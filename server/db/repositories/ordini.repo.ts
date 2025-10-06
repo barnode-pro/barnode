@@ -235,14 +235,8 @@ export class OrdiniRepository {
           .limit(1);
 
         if (riga) {
-          // Incrementa quantità attuale dell'articolo
-          await db
-            .update(articoli)
-            .set({
-              quantita_attuale: sql`${articoli.quantita_attuale} + ${quantita_ricevuta}`,
-              updated_at: new Date()
-            })
-            .where(eq(articoli.id, riga.articolo_id));
+          // Aggiornamento giacenze disabilitato - solo ricezione stato ordine
+          // L'articolo non viene più aggiornato automaticamente
         }
       }
 

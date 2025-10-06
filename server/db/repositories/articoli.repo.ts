@@ -10,7 +10,11 @@ import type { PaginatedResponse } from '../../utils/validate.js';
  * Include join con fornitori e filtri avanzati
  */
 
-export type ArticoloConFornitore = Articolo & {
+export type ArticoloConFornitore = Omit<Articolo, 'quantita_attuale' | 'soglia_minima'> & {
+  /** @deprecated Gestione giacenze disabilitata */
+  quantita_attuale?: number;
+  /** @deprecated Gestione giacenze disabilitata */
+  soglia_minima?: number;
   fornitore: {
     id: string;
     nome: string;
@@ -45,8 +49,9 @@ export class ArticoliRepository {
         conditions.push(eq(articoli.fornitore_id, fornitore_id));
       }
       
+      // Filtro scarsità disabilitato - gestione giacenze rimossa
       if (solo_scarsita) {
-        conditions.push(lt(articoli.quantita_attuale, articoli.soglia_minima));
+        // Ignora filtro scarsità - funzionalità disabilitata
       }
 
       const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -59,8 +64,7 @@ export class ArticoliRepository {
           categoria: articoli.categoria,
           unita: articoli.unita,
           confezione: articoli.confezione,
-          quantita_attuale: articoli.quantita_attuale,
-          soglia_minima: articoli.soglia_minima,
+          // quantita_attuale e soglia_minima rimossi - gestione disabilitata
           prezzo_acquisto: articoli.prezzo_acquisto,
           prezzo_vendita: articoli.prezzo_vendita,
           fornitore_id: articoli.fornitore_id,
@@ -139,11 +143,13 @@ export class ArticoliRepository {
   }
   async create(data: InsertArticoloInput): Promise<Articolo> {
     try {
-      // Conversione tipi per Drizzle
+      // Conversione tipi per Drizzle - giacenze ignorate
+      const { quantita_attuale, soglia_minima, ...cleanData } = data;
       const dbData = {
-        ...data,
-        quantita_attuale: data.quantita_attuale || 0,
-        soglia_minima: data.soglia_minima || 0
+        ...cleanData,
+        // Valori default per compatibilità DB (non esposti in API)
+        quantita_attuale: 0,
+        soglia_minima: 0
       };
 
       const [newArticolo] = await db
@@ -159,13 +165,13 @@ export class ArticoliRepository {
 
   async update(id: string, data: UpdateArticoloInput): Promise<Articolo> {
     try {
-      // Conversione tipi per Drizzle
-      const dbData: any = { ...data, updated_at: new Date() };
-      if (data.quantita_attuale !== undefined) {
-        dbData.quantita_attuale = data.quantita_attuale.toString();
-      }
-      if (data.soglia_minima !== undefined) {
-        dbData.soglia_minima = data.soglia_minima.toString();
+      // Conversione tipi per Drizzle - giacenze ignorate
+      const { quantita_attuale, soglia_minima, ...cleanData } = data;
+      const dbData: any = { ...cleanData, updated_at: new Date() };
+      
+      // Log warning se arrivano campi giacenze (per debug)
+      if (quantita_attuale !== undefined || soglia_minima !== undefined) {
+        console.warn('Campi giacenze ignorati in update articolo:', { quantita_attuale, soglia_minima });
       }
 
       const [updatedArticolo] = await db

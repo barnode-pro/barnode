@@ -19,11 +19,13 @@ export type Fornitore = z.infer<typeof fornitoreSchema>;
 export const articoloSchema = z.object({
   id: z.string().uuid(),
   nome: z.string().min(1, "Nome articolo è obbligatorio"),
-  categoria: z.string().min(1, "Categoria è obbligatoria"),
-  unita: z.string().min(1, "Unità di misura è obbligatoria"),
-  confezione: z.string().min(1, "Confezione è obbligatoria"),
-  quantita_attuale: z.number().min(0, "Quantità non può essere negativa"),
-  soglia_minima: z.number().min(0, "Soglia minima non può essere negativa"),
+  categoria: z.string().optional(),
+  unita: z.string().optional(),
+  confezione: z.string().optional(),
+  /** @deprecated Gestione giacenze disabilitata */
+  quantita_attuale: z.number().min(0, "Quantità non può essere negativa").optional(),
+  /** @deprecated Gestione giacenze disabilitata */
+  soglia_minima: z.number().min(0, "Soglia minima non può essere negativa").optional(),
   fornitore_id: z.string().uuid(),
   note: z.string().optional(),
 });

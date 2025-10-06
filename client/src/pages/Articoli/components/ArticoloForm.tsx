@@ -18,7 +18,7 @@ interface ArticoloFormProps {
 export function ArticoloForm({ articoloId, onClose, onSave }: ArticoloFormProps) {
   const [formData, setFormData] = useState<InsertArticolo>({
     nome: '', categoria: '', unita: '', confezione: '',
-    quantita_attuale: 0, soglia_minima: 0, fornitore_id: '', note: ''
+    fornitore_id: '', note: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,8 +36,7 @@ export function ArticoloForm({ articoloId, onClose, onSave }: ArticoloFormProps)
         const a = response.data;
         setFormData({
           nome: a.nome, categoria: a.categoria || '', unita: a.unita || '',
-          confezione: a.confezione || '', quantita_attuale: Number(a.quantita_attuale),
-          soglia_minima: Number(a.soglia_minima), fornitore_id: a.fornitore.id,
+          confezione: a.confezione || '', fornitore_id: a.fornitore.id,
           note: a.note || ''
         });
       } else setError(response.message || 'Errore caricamento');
@@ -99,16 +98,7 @@ export function ArticoloForm({ articoloId, onClose, onSave }: ArticoloFormProps)
                 <Input value={formData.confezione} onChange={(e) => handleChange('confezione', e.target.value)} placeholder="scatola..." disabled={loading} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Quantità</Label>
-                <Input type="number" min="0" step="0.01" value={formData.quantita_attuale} onChange={(e) => handleChange('quantita_attuale', Number(e.target.value))} disabled={loading} />
-              </div>
-              <div>
-                <Label>Soglia Min</Label>
-                <Input type="number" min="0" step="0.01" value={formData.soglia_minima} onChange={(e) => handleChange('soglia_minima', Number(e.target.value))} disabled={loading} />
-              </div>
-            </div>
+            {/* Campi giacenze rimossi - gestione disabilitata */}
             <div>
               <Label>Fornitore *</Label>
               <Select value={formData.fornitore_id} onValueChange={(value) => handleChange('fornitore_id', value)} disabled={loading}>

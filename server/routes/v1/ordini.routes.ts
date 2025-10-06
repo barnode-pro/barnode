@@ -228,10 +228,22 @@ router.post('/:id/ricezione',
   }
 );
 
-// POST /api/v1/ordini/auto - Genera ordini automatici da articoli sotto soglia
+// POST /api/v1/ordini/auto - Genera ordini automatici (DISABILITATO)
 router.post('/auto',
   async (req, res, next) => {
     try {
+      // Feature flag per gestione giacenze
+      const featureStock = process.env.FEATURE_STOCK === 'true';
+      
+      if (!featureStock) {
+        return res.status(410).json({
+          success: false,
+          error: 'feature_disabled',
+          message: 'Funzionalità disabilitata (gestione giacenze non attiva)'
+        });
+      }
+      
+      // Codice originale mantenuto per eventuale riattivazione
       const ordiniCreati = await ordiniRepo.generaOrdiniAutomatici();
       
       logger.info('Ordini automatici generati', { 
