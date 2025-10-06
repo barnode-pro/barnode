@@ -89,18 +89,28 @@ export default function ArticoliPage() {
       <ErrorBoundary>
         <div className="h-screen flex flex-col">
           {/* Header - Fisso */}
-          <div className="flex-shrink-0 flex items-center justify-between mb-6">
-            <div className="flex-1 text-center">
+          <div className="flex-shrink-0 relative mb-6">
+            <div className="absolute left-0 top-0 w-20"></div>
+            <div className="text-center">
               <h1 className="text-2xl font-bold text-foreground">Articoli</h1>
             </div>
-            <div className="flex gap-2">
+            <div className="absolute right-0 top-0 flex gap-3">
               <ImportProdottiDialog>
-                <Button variant="outline" size="icon" className="bg-white border-green-500 text-green-500 hover:bg-green-50">
-                  <UploadIcon className="h-4 w-4" />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="w-10 h-10 bg-white text-green-600 hover:bg-green-50 shadow-sm border-0"
+                >
+                  <UploadIcon className="h-5 w-5" />
                 </Button>
               </ImportProdottiDialog>
-              <Button size="icon" className="bg-green-500 text-white hover:bg-green-600" disabled>
-                <PlusIcon className="h-4 w-4" />
+              <Button 
+                variant="ghost"
+                size="icon" 
+                className="w-10 h-10 bg-green-600 text-white hover:bg-green-700 shadow-sm border-0" 
+                disabled
+              >
+                <PlusIcon className="h-5 w-5" />
               </Button>
             </div>
           </div>
@@ -167,7 +177,7 @@ export default function ArticoliPage() {
                   Nessun articolo trovato
                 </div>
               ) : (
-                <div className="h-full overflow-y-auto space-y-4 pr-2">
+                <div className="h-full overflow-y-auto space-y-4 pr-2" style={{ overscrollBehavior: 'contain' }}>
                   {articoli.map((articolo) => (
                     <div
                       key={articolo.id}

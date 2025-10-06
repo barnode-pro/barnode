@@ -21,21 +21,31 @@ export class ImportService {
    */
   async importFromFile(file: File): Promise<ApiResponse<ImportResult>> {
     try {
+      console.log('🔍 Import file:', file.name, file.size, file.type);
+      
       const formData = new FormData();
       formData.append('file', file);
 
+      console.log('📤 Sending request to /api/v1/import/prodotti');
+      
       const response = await fetch('/api/v1/import/prodotti', {
         method: 'POST',
         body: formData
       });
 
+      console.log('📥 Response status:', response.status, response.statusText);
+
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Import error:', errorData);
         throw new Error(errorData.message || `HTTP ${response.status}`);
       }
 
-      return await response.json();
+      const result = await response.json();
+      console.log('✅ Import success:', result);
+      return result;
     } catch (error) {
+      console.error('💥 Import exception:', error);
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Errore import file'
