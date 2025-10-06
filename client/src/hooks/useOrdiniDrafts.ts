@@ -41,10 +41,13 @@ export function useOrdiniDrafts() {
       queryClient.invalidateQueries({ queryKey: ['ordini', 'drafts', 'count'] });
       queryClient.invalidateQueries({ queryKey: ['ordini'] });
       
-      // Log successo (sostituirà toast in futuro)
-      console.log(`Aggiunto alla bozza di ${data?.fornitoreNome}`, {
-        righeCount: data?.righeCount
-      });
+      // Toast successo per aggiunta a bozza
+      if (data?.fornitoreNome) {
+        // Simulazione toast con console.log per ora
+        console.log(`✅ Toast: Aggiunto a bozza: ${data.fornitoreNome}`);
+        
+        // In futuro: toast.success(`Aggiunto a bozza: ${data.fornitoreNome}`)
+      }
     },
     onError: (error: Error) => {
       console.error('Errore aggiunta articolo:', error.message);
@@ -62,6 +65,17 @@ export function useOrdiniDrafts() {
     queryClient.invalidateQueries({ queryKey: ['ordini'] });
   };
 
+  // Funzioni helper per toast (simulati con console.log)
+  const showUpdateToast = () => {
+    console.log('✅ Toast: Quantità aggiornata');
+    // In futuro: toast.success('Quantità aggiornata')
+  };
+
+  const showRemoveToast = () => {
+    console.log('✅ Toast: Riga rimossa');
+    // In futuro: toast.success('Riga rimossa')
+  };
+
   return {
     // Dati
     draftsCount: draftsCount || { totalDrafts: 0, perFornitore: [] },
@@ -74,6 +88,8 @@ export function useOrdiniDrafts() {
     
     // Azioni
     addItemToDraft,
-    invalidateDrafts
+    invalidateDrafts,
+    showUpdateToast,
+    showRemoveToast
   };
 }

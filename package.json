@@ -4,9 +4,11 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development tsx server/index.ts",
+    "dev": "vite",
+    "dev:server": "NODE_ENV=development PORT=3001 tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
+    "preview": "vite preview --port 5173",
     "check": "tsc",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -25,7 +27,8 @@
     "backup": "node scripts/backup-system.js",
     "backup:list": "node scripts/backup-system.js --list",
     "backup:restore": "node scripts/backup-system.js --restore",
-    "restore-confirm": "node scripts/backup-system.js --confirm"
+    "restore-confirm": "node scripts/backup-system.js --confirm",
+    "diag:db": "curl -s http://localhost:3001/api/v1/_healthz | jq ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

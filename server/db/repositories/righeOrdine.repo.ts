@@ -1,5 +1,5 @@
 import { eq, and } from 'drizzle-orm';
-import { db } from '../client.js';
+import { dbSqlite as db } from '../client.js';
 import { righeOrdine, type RigaOrdine, type InsertRigaOrdineInput, type UpdateRigaOrdineInput, type UpdateQuantitaRicevutaInput } from '../schema/rigaOrdine.js';
 import { articoli } from '../schema/articolo.js';
 import { NotFoundError, DatabaseError } from '../../utils/errors.js';

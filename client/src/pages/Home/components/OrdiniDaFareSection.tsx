@@ -24,7 +24,7 @@ export default function OrdiniDaFareSection() {
           <ShoppingCart className="h-5 w-5" />
           Ordini da fare
           {totalDrafts > 0 && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge variant="secondary" className="ml-2" data-testid="drafts-badge">
               {totalDrafts}
             </Badge>
           )}
@@ -41,7 +41,7 @@ export default function OrdiniDaFareSection() {
         ) : totalDrafts > 0 ? (
           <div className="space-y-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-primary">{totalDrafts}</p>
+              <p className="text-2xl font-bold text-primary" data-testid="drafts-count-main">{totalDrafts}</p>
               <p className="text-sm text-muted-foreground">
                 {totalDrafts === 1 ? 'articolo in bozza' : 'articoli in bozza'}
               </p>

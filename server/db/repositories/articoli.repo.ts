@@ -1,5 +1,5 @@
 import { eq, ilike, or, count, desc, sql, and, lt, inArray } from 'drizzle-orm';
-import { db } from '../client.js';
+import { dbSqlite as db } from '../client.js';
 import { articoli, type Articolo, type InsertArticoloInput, type UpdateArticoloInput, type SearchArticoliInput, type BulkEditArticoliInput } from '../schema/articolo.js';
 import { fornitori } from '../schema/fornitore.js';
 import { NotFoundError, DatabaseError } from '../../utils/errors.js';

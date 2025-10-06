@@ -1,5 +1,5 @@
 import { eq, ilike, or, count, desc } from 'drizzle-orm';
-import { db } from '../client.js';
+import { dbSqlite as db } from '../client.js';
 import { fornitori, type Fornitore, type InsertFornitoreInput, type UpdateFornitoreInput, type SearchFornitoriInput } from '../schema/fornitore.js';
 import { NotFoundError, DatabaseError } from '../../utils/errors.js';
 import type { PaginatedResponse } from '../../utils/validate.js';

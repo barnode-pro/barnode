@@ -1,4 +1,6 @@
 import { useLocation } from "wouter";
+import { Badge } from "@/components/ui/badge";
+import { useOrdiniDrafts } from "@/hooks/useOrdiniDrafts";
 import HomeIcon from "~icons/tabler/home";
 import PackageIcon from "~icons/tabler/package";
 import ShoppingCartIcon from "~icons/tabler/shopping-cart";
@@ -21,6 +23,7 @@ const navItems: NavItem[] = [
  */
 export function BottomNav() {
   const [location, setLocation] = useLocation();
+  const { totalDrafts } = useOrdiniDrafts();
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -46,7 +49,7 @@ export function BottomNav() {
               onClick={() => setLocation(item.path)}
               className={`
                 flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg
-                min-w-[64px] min-h-[48px] transition-colors duration-200
+                min-w-[64px] min-h-[48px] transition-colors duration-200 relative
                 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2
                 ${active 
                   ? "text-primary bg-primary/10" 
@@ -56,7 +59,18 @@ export function BottomNav() {
               aria-label={`Vai a ${item.label}`}
               aria-current={active ? "page" : undefined}
             >
-              <Icon className="h-5 w-5" aria-hidden="true" />
+              <div className="relative">
+                <Icon className="h-5 w-5" aria-hidden="true" />
+                {item.path === "/ordini" && totalDrafts > 0 && (
+                  <Badge 
+                    variant="destructive" 
+                    className="absolute -top-2 -right-2 h-4 w-4 p-0 text-xs flex items-center justify-center"
+                    data-testid="nav-badge-drafts"
+                  >
+                    {totalDrafts}
+                  </Badge>
+                )}
+              </div>
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           );

@@ -42,6 +42,9 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    proxy: {
+      '/api': 'http://localhost:3001'
+    },
     fs: {
       strict: true,
       deny: ["**/.*"],

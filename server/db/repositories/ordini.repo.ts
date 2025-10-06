@@ -1,11 +1,11 @@
 import { eq, and, count, desc, gte, lte, lt, sql } from 'drizzle-orm';
-import { db } from '../client';
-import { ordini, type Ordine, type InsertOrdineInput, type UpdateOrdineInput, type SearchOrdiniInput } from '../schema/ordine';
-import { righeOrdine, type RigaOrdine, type InsertRigaOrdineInput } from '../schema/rigaOrdine';
-import { fornitori } from '../schema/fornitore';
-import { articoli } from '../schema/articolo';
-import { NotFoundError, DatabaseError } from '../../utils/errors';
-import type { PaginatedResponse } from '../../utils/validate';
+import { dbSqlite as db } from '../client.js';
+import { ordini, type Ordine, type InsertOrdineInput, type UpdateOrdineInput, type SearchOrdiniInput } from '../schema/ordine.js';
+import { righeOrdine, type RigaOrdine, type InsertRigaOrdineInput } from '../schema/rigaOrdine.js';
+import { fornitori } from '../schema/fornitore.js';
+import { articoli } from '../schema/articolo.js';
+import { NotFoundError, DatabaseError } from '../../utils/errors.js';
+import type { PaginatedResponse } from '../../utils/validate.js';
 
 /**
  * Repository per gestione CRUD Ordini

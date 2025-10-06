@@ -61,11 +61,12 @@ export default function OrdiniPage() {
 
   const getStatoBadgeVariant = (stato: StatoOrdine) => {
     switch (stato) {
+      case 'bozza': return 'outline';
       case 'nuovo': return 'default';
       case 'inviato': return 'secondary';
       case 'in_ricezione': return 'outline';
-      case 'archiviato': return 'outline';
-      default: return 'outline';
+      case 'archiviato': return 'secondary';
+      default: return 'default';
     }
   };
 
@@ -116,6 +117,7 @@ export default function OrdiniPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">Tutti gli stati</SelectItem>
+                    <SelectItem value="bozza">Bozza</SelectItem>
                     <SelectItem value="nuovo">Nuovo</SelectItem>
                     <SelectItem value="inviato">Inviato</SelectItem>
                     <SelectItem value="in_ricezione">In Ricezione</SelectItem>
@@ -162,10 +164,22 @@ export default function OrdiniPage() {
                   {ordini.map((ordine) => (
                     <div
                       key={ordine.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
+                      className={`flex items-center justify-between p-4 border rounded-lg ${
+                        ordine.stato === 'bozza' 
+                          ? 'border-amber-200 bg-amber-50/50 shadow-sm' 
+                          : ''
+                      }`}
+                      data-testid={ordine.stato === 'bozza' ? 'ordine-bozza' : undefined}
                     >
                       <div className="space-y-1">
-                        <h3 className="font-medium">Ordine #{ordine.id.slice(-8)}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-medium">Ordine #{ordine.id.slice(-8)}</h3>
+                          {ordine.stato === 'bozza' && (
+                            <Badge variant="outline" className="text-xs bg-amber-100 text-amber-800 border-amber-300">
+                              Bozza
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           {ordine.fornitore.nome} • {new Date(ordine.data).toLocaleDateString('it-IT')}
                         </p>
@@ -186,6 +200,7 @@ export default function OrdiniPage() {
                               <EditIcon className="h-4 w-4" />
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="bozza">Bozza</SelectItem>
                               <SelectItem value="nuovo">Nuovo</SelectItem>
                               <SelectItem value="inviato">Inviato</SelectItem>
                               <SelectItem value="in_ricezione">In Ricezione</SelectItem>
