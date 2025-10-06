@@ -36,6 +36,15 @@ export default function OrdiniPage() {
     fornitore_id: selectedFornitore || undefined
   });
 
+  // DEBUG: Log per identificare il problema
+  console.log('🔍 OrdiniPage Debug:', {
+    ordini: ordini?.length || 0,
+    loading,
+    error,
+    selectedStato,
+    selectedFornitore
+  });
+
   const { fornitori } = useFornitori();
 
   const handleStatoChange = (value: string) => {
@@ -160,8 +169,10 @@ export default function OrdiniPage() {
                   Nessun ordine trovato
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {ordini.map((ordine) => (
+                <div className="space-y-4" data-testid="ordini-list">
+                  {ordini.map((ordine) => {
+                    try {
+                      return (
                     <div
                       key={ordine.id}
                       className={`flex items-center justify-between p-4 border rounded-lg ${
@@ -210,7 +221,16 @@ export default function OrdiniPage() {
                         </div>
                       </div>
                     </div>
-                  ))}
+                      );
+                    } catch (err) {
+                      console.error('Errore rendering ordine:', ordine.id, err);
+                      return (
+                        <div key={ordine.id} className="p-4 border rounded-lg bg-red-50">
+                          Errore rendering ordine {ordine.id.slice(-8)}
+                        </div>
+                      );
+                    }
+                  })}
                 </div>
               )}
             </CardContent>
