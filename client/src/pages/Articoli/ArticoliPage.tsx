@@ -90,22 +90,17 @@ export default function ArticoliPage() {
         <div className="h-screen flex flex-col">
           {/* Header - Fisso */}
           <div className="flex-shrink-0 flex items-center justify-between mb-6">
-            <div>
+            <div className="flex-1 text-center">
               <h1 className="text-2xl font-bold text-foreground">Articoli</h1>
-              <p className="text-muted-foreground">
-                Gestione inventario e scorte dell'attività
-              </p>
             </div>
             <div className="flex gap-2">
               <ImportProdottiDialog>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" size="icon" className="bg-white border-green-500 text-green-500 hover:bg-green-50">
                   <UploadIcon className="h-4 w-4" />
-                  Importa Prodotti
                 </Button>
               </ImportProdottiDialog>
-              <Button className="gap-2" disabled>
+              <Button size="icon" className="bg-green-500 text-white hover:bg-green-600" disabled>
                 <PlusIcon className="h-4 w-4" />
-                Nuovo Articolo
               </Button>
             </div>
           </div>
