@@ -128,9 +128,9 @@ BarNode è un'applicazione per la gestione del ciclo ordini completo:
 | Modulo | Struttura | UI Base | Logica | API | Test | Stato |
 |--------|-----------|---------|--------|-----|------|-------|
 | Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ | Completo |
-| Articoli | ✅ | ✅ | ⚪ | ✅ | ✅ | API Ready |
+| Articoli | ✅ | ✅ | ✅ | ✅ | ✅ | FE↔BE Integrato |
 | Fornitori | ✅ | ✅ | ⚪ | ✅ | ✅ | API Ready |
-| Ordini | ✅ | ✅ | ⚪ | ✅ | ✅ | API Ready |
+| Ordini | ✅ | ✅ | ✅ | ✅ | ✅ | FE↔BE Integrato |
 | Ricezione | ✅ | ✅ | ⚪ | ⚪ | ⚪ | Base |
 | Navigazione | ✅ | ✅ | ✅ | ✅ | ✅ | Completo |
 
@@ -147,10 +147,14 @@ BarNode è un'applicazione per la gestione del ciclo ordini completo:
 - ✅ Repository pattern CRUD completo
 - ✅ Test API con Supertest
 
-### STEP 3 - Integrazione Frontend-Backend
-- Gestione completa inventario
-- Filtri e ricerca avanzata
-- Alert scorte minime
+### STEP 3 - Integrazione Frontend-Backend ✅ COMPLETATO
+- ✅ Gestione completa inventario con CRUD
+- ✅ Filtri e ricerca real-time con debounce
+- ✅ Alert scorte minime con badge colorati
+- ✅ API Client reale con error handling
+- ✅ State management con custom hooks
+
+### STEP 4 - Database Setup & Completamento UI
 
 ### STEP 4 - Sistema Ordini
 - Creazione automatica da scorte

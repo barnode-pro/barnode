@@ -56,6 +56,13 @@
 - Creata governance in vite.config.ts
 - Documentazione ICONS_GUIDE.md completa
 
+### 06/10/2025 - STEP 3 FE↔BE Integrazione
+- API Client reale con fetch e error handling
+- Articoli: CRUD completo con filtri e form modale
+- Ordini: lista filtrata con update stati inline
+- Custom hooks per state management (useArticoli, useOrdini)
+- Fix STEP 2: Drizzle types, rowCount, registerVite export
+
 ### 06/10/2025 - Header Visual Refresh
 - Logo centrato e ingrandito del 20% (h-12)
 - Ripristinato pulsante dark/light theme

@@ -1,8 +1,8 @@
-import type { ApiResponse, ApiError } from "@/types";
+import type { ApiResponse } from "@/types";
 
 /**
  * Client API per comunicazione con il backend BarNode
- * Interfaccia unificata per tutte le chiamate HTTP
+ * Implementazione reale con fetch e gestione errori
  */
 class ApiClient {
   private baseUrl: string;
@@ -11,64 +11,80 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
+  private async request<T>(
+    endpoint: string, 
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${this.baseUrl}${endpoint}`;
+    
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+        ...options,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || 'http_error',
+          message: data.message || `HTTP ${response.status}`,
+          status: response.status
+        };
+      }
+
+      return {
+        success: true,
+        data: data.data || data,
+        message: data.message,
+        pagination: data.pagination
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: 'network_error',
+        message: error instanceof Error ? error.message : 'Errore di rete',
+        status: 0
+      };
+    }
+  }
+
   /**
    * Metodo GET generico
    */
   async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    // TODO: Implementare chiamata HTTP reale
-    console.log(`[API] GET ${this.baseUrl}${endpoint}`);
-    
-    // Placeholder response
-    return {
-      data: {} as T,
-      success: true,
-      message: "Placeholder response - implementazione in STEP 2"
-    };
+    return this.request<T>(endpoint, { method: 'GET' });
   }
 
   /**
    * Metodo POST generico
    */
   async post<T>(endpoint: string, data: unknown): Promise<ApiResponse<T>> {
-    // TODO: Implementare chiamata HTTP reale
-    console.log(`[API] POST ${this.baseUrl}${endpoint}`, data);
-    
-    // Placeholder response
-    return {
-      data: {} as T,
-      success: true,
-      message: "Placeholder response - implementazione in STEP 2"
-    };
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   /**
    * Metodo PUT generico
    */
   async put<T>(endpoint: string, data: unknown): Promise<ApiResponse<T>> {
-    // TODO: Implementare chiamata HTTP reale
-    console.log(`[API] PUT ${this.baseUrl}${endpoint}`, data);
-    
-    // Placeholder response
-    return {
-      data: {} as T,
-      success: true,
-      message: "Placeholder response - implementazione in STEP 2"
-    };
+    return this.request<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
   }
 
   /**
    * Metodo DELETE generico
    */
-  async delete<T>(endpoint: string): Promise<ApiResponse<T>> {
-    // TODO: Implementare chiamata HTTP reale
-    console.log(`[API] DELETE ${this.baseUrl}${endpoint}`);
-    
-    // Placeholder response
-    return {
-      data: {} as T,
-      success: true,
-      message: "Placeholder response - implementazione in STEP 2"
-    };
+  async del<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'DELETE' });
   }
 }
 

@@ -136,9 +136,16 @@ export class ArticoliRepository {
 
   async create(data: InsertArticoloInput): Promise<Articolo> {
     try {
+      // Conversione tipi per Drizzle
+      const dbData = {
+        ...data,
+        quantita_attuale: data.quantita_attuale.toString(),
+        soglia_minima: data.soglia_minima.toString()
+      };
+
       const [newArticolo] = await db
         .insert(articoli)
-        .values(data)
+        .values(dbData)
         .returning();
 
       return newArticolo;
@@ -149,9 +156,18 @@ export class ArticoliRepository {
 
   async update(id: string, data: UpdateArticoloInput): Promise<Articolo> {
     try {
+      // Conversione tipi per Drizzle
+      const dbData: any = { ...data, updated_at: new Date() };
+      if (data.quantita_attuale !== undefined) {
+        dbData.quantita_attuale = data.quantita_attuale.toString();
+      }
+      if (data.soglia_minima !== undefined) {
+        dbData.soglia_minima = data.soglia_minima.toString();
+      }
+
       const [updatedArticolo] = await db
         .update(articoli)
-        .set({ ...data, updated_at: new Date() })
+        .set(dbData)
         .where(eq(articoli.id, id))
         .returning();
 
@@ -168,13 +184,13 @@ export class ArticoliRepository {
 
   async remove(id: string): Promise<void> {
     try {
-      const result = await db
+      // Verifica esistenza prima di eliminare
+      await this.getById(id);
+      
+      await db
         .delete(articoli)
         .where(eq(articoli.id, id));
-
-      if (result.rowCount === 0) {
-        throw new NotFoundError('Articolo', id);
-      }
+        
     } catch (error) {
       if (error instanceof NotFoundError) throw error;
       throw new DatabaseError('Errore eliminazione articolo', error as Error);

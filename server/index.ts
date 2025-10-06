@@ -1,6 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
-import { setupVite, serveStatic, log } from "./utils/vite";
+import { registerVite, serveStatic, log } from "./utils/vite";
 import { healthRoutes } from "./routes/health.routes.js";
 import { v1Routes } from "./routes/v1/index.js";
 import { errorHandler } from "./utils/errorHandler.js";
@@ -71,13 +71,14 @@ app.use(errorHandler);
   // Setup Vite o static files
   if (process.env.NODE_ENV === "development") {
     const server = app.listen(port, "0.0.0.0", () => {
-      const timestamp = new Date().toISOString();
-      console.log(`✅ BarNode API attive — /api/health, /api/v1/{articoli, fornitori, ordini}`);
-      console.log(`DB: drizzle + pg (ok) | Env: ${process.env.NODE_ENV || 'development'} | ts: ${timestamp}`);
+      console.log(`✅ Fix STEP 2 applicati (Drizzle types, rowCount, registerVite)`);
+      console.log(`✅ FE↔BE integrati — Articoli & Ordini online`);
+      console.log(`Rotte attive FE: /articoli, /ordini`);
+      console.log(`API: /api/v1/{articoli, fornitori, ordini} | Health OK`);
       log(`Server running on port ${port}`);
-      console.log(`✅ Header Bar aggiornato: logo centrato, titolo/pulsante rimossi, no border`);
     });
-    await setupVite(app, server);
+    await registerVite(app, server);
+    console.log('✅ Vite dev middleware registrato');
   } else {
     serveStatic(app);
     app.listen(port, "0.0.0.0", () => {

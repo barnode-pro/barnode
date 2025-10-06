@@ -143,16 +143,24 @@ export class OrdiniRepository {
 
   async create(data: InsertOrdineInput, righe?: InsertRigaOrdineInput[]): Promise<OrdineCompleto> {
     try {
+      // Conversione tipi per Drizzle
+      const dbData = {
+        ...data,
+        data: data.data ? data.data.toISOString().split('T')[0] : undefined
+      };
+
       const [newOrdine] = await db
         .insert(ordini)
-        .values(data)
+        .values(dbData)
         .returning();
 
       // Aggiungi righe se fornite
       if (righe && righe.length > 0) {
         const righeConOrdineId = righe.map(riga => ({
           ...riga,
-          ordine_id: newOrdine.id
+          ordine_id: newOrdine.id,
+          qta_ordinata: riga.qta_ordinata.toString(),
+          qta_ricevuta: riga.qta_ricevuta?.toString() || '0'
         }));
         
         await db.insert(righeOrdine).values(righeConOrdineId);
@@ -166,9 +174,15 @@ export class OrdiniRepository {
 
   async update(id: string, data: UpdateOrdineInput): Promise<OrdineCompleto> {
     try {
+      // Conversione tipi per Drizzle
+      const dbData: any = { ...data, updated_at: new Date() };
+      if (data.data) {
+        dbData.data = data.data.toISOString().split('T')[0];
+      }
+
       const [updatedOrdine] = await db
         .update(ordini)
-        .set({ ...data, updated_at: new Date() })
+        .set(dbData)
         .where(eq(ordini.id, id))
         .returning();
 
@@ -185,13 +199,13 @@ export class OrdiniRepository {
 
   async remove(id: string): Promise<void> {
     try {
-      const result = await db
+      // Verifica esistenza prima di eliminare
+      await this.getById(id);
+      
+      await db
         .delete(ordini)
         .where(eq(ordini.id, id));
-
-      if (result.rowCount === 0) {
-        throw new NotFoundError('Ordine', id);
-      }
+        
     } catch (error) {
       if (error instanceof NotFoundError) throw error;
       throw new DatabaseError('Errore eliminazione ordine', error as Error);

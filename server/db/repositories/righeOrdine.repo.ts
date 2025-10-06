@@ -84,9 +84,16 @@ export class RigheOrdineRepository {
 
   async create(data: InsertRigaOrdineInput): Promise<RigaOrdine> {
     try {
+      // Conversione tipi per Drizzle
+      const dbData = {
+        ...data,
+        qta_ordinata: data.qta_ordinata.toString(),
+        qta_ricevuta: data.qta_ricevuta?.toString() || '0'
+      };
+
       const [newRiga] = await db
         .insert(righeOrdine)
-        .values(data)
+        .values(dbData)
         .returning();
 
       return newRiga;
@@ -97,9 +104,18 @@ export class RigheOrdineRepository {
 
   async update(id: string, data: UpdateRigaOrdineInput): Promise<RigaOrdine> {
     try {
+      // Conversione tipi per Drizzle
+      const dbData: any = { ...data, updated_at: new Date() };
+      if (data.qta_ordinata !== undefined) {
+        dbData.qta_ordinata = data.qta_ordinata.toString();
+      }
+      if (data.qta_ricevuta !== undefined) {
+        dbData.qta_ricevuta = data.qta_ricevuta.toString();
+      }
+
       const [updatedRiga] = await db
         .update(righeOrdine)
-        .set({ ...data, updated_at: new Date() })
+        .set(dbData)
         .where(eq(righeOrdine.id, id))
         .returning();
 
@@ -139,13 +155,13 @@ export class RigheOrdineRepository {
 
   async remove(id: string): Promise<void> {
     try {
-      const result = await db
+      // Verifica esistenza prima di eliminare
+      await this.getById(id);
+      
+      await db
         .delete(righeOrdine)
         .where(eq(righeOrdine.id, id));
-
-      if (result.rowCount === 0) {
-        throw new NotFoundError('Riga ordine', id);
-      }
+        
     } catch (error) {
       if (error instanceof NotFoundError) throw error;
       throw new DatabaseError('Errore eliminazione riga ordine', error as Error);
@@ -154,16 +170,27 @@ export class RigheOrdineRepository {
 
   async removeByOrdineAndArticolo(ordineId: string, articoloId: string): Promise<void> {
     try {
-      const result = await db
+      // Verifica esistenza tramite query
+      const existing = await db
+        .select()
+        .from(righeOrdine)
+        .where(and(
+          eq(righeOrdine.ordine_id, ordineId),
+          eq(righeOrdine.articolo_id, articoloId)
+        ))
+        .limit(1);
+        
+      if (existing.length === 0) {
+        throw new NotFoundError('Riga ordine', `${ordineId}-${articoloId}`);
+      }
+      
+      await db
         .delete(righeOrdine)
         .where(and(
           eq(righeOrdine.ordine_id, ordineId),
           eq(righeOrdine.articolo_id, articoloId)
         ));
-
-      if (result.rowCount === 0) {
-        throw new NotFoundError('Riga ordine', `${ordineId}-${articoloId}`);
-      }
+        
     } catch (error) {
       if (error instanceof NotFoundError) throw error;
       throw new DatabaseError('Errore eliminazione riga ordine', error as Error);

@@ -3,9 +3,17 @@ export * from "@shared/types/schema";
 
 // Tipi specifici del client
 export interface ApiResponse<T> {
-  data: T;
   success: boolean;
+  data?: T;
   message?: string;
+  error?: string;
+  status?: number;
+  pagination?: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface ApiError {
