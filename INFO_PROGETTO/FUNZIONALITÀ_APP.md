@@ -127,10 +127,10 @@ BarNode è un'applicazione per la gestione del ciclo ordini completo:
 
 | Modulo | Struttura | UI Base | Logica | API | Test | Stato |
 |--------|-----------|---------|--------|-----|------|-------|
-| Dashboard | ✅ | ✅ | ✅ | ⚪ | ✅ | Completo |
-| Articoli | ✅ | ✅ | ⚪ | ⚪ | ✅ | Base |
-| Fornitori | ✅ | ✅ | ⚪ | ⚪ | ⚪ | Base |
-| Ordini | ✅ | ✅ | ⚪ | ⚪ | ✅ | Base |
+| Dashboard | ✅ | ✅ | ✅ | ✅ | ✅ | Completo |
+| Articoli | ✅ | ✅ | ⚪ | ✅ | ✅ | API Ready |
+| Fornitori | ✅ | ✅ | ⚪ | ✅ | ✅ | API Ready |
+| Ordini | ✅ | ✅ | ⚪ | ✅ | ✅ | API Ready |
 | Ricezione | ✅ | ✅ | ⚪ | ⚪ | ⚪ | Base |
 | Navigazione | ✅ | ✅ | ✅ | ✅ | ✅ | Completo |
 
@@ -140,12 +140,14 @@ BarNode è un'applicazione per la gestione del ciclo ordini completo:
 
 ## 🎯 PROSSIMI OBIETTIVI
 
-### STEP 2 - Implementazione API Backend
-- Endpoint REST per tutte le entità
-- Database schema con Drizzle ORM
-- Validazione dati con Zod
+### STEP 2 - Implementazione API Backend ✅ COMPLETATO
+- ✅ Endpoint REST per tutte le entità (18 endpoint)
+- ✅ Database schema con Drizzle ORM (4 entità)
+- ✅ Validazione dati con Zod e error handling
+- ✅ Repository pattern CRUD completo
+- ✅ Test API con Supertest
 
-### STEP 3 - CRUD Articoli
+### STEP 3 - Integrazione Frontend-Backend
 - Gestione completa inventario
 - Filtri e ricerca avanzata
 - Alert scorte minime

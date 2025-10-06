@@ -1,18 +1,33 @@
-# Database
+# Database BarNode - PostgreSQL + Drizzle
 
-Questa cartella contiene le configurazioni e logiche di accesso al database.
+Configurazione database e schemi per API BarNode.
 
-## Contenuto
+## Struttura
 
-- `storage.ts` - Interface e implementazione storage
-- Configurazioni Drizzle ORM
-- Migrazioni e seed del database
-- Query e operazioni CRUD
+### `client.ts`
+- Connessione PostgreSQL con pooling
+- Istanza Drizzle ORM configurata
+- Utilities per test connessione
+
+### `schema/`
+- **fornitore.ts** - Anagrafica fornitori con contatti
+- **articolo.ts** - Inventario con scorte e soglie
+- **ordine.ts** - Ordini con stati workflow
+- **rigaOrdine.ts** - Dettaglio articoli ordinati
+
+### `repositories/`
+- Pattern repository per CRUD operations
+- Astrazione accesso dati tipizzata
+- Gestione errori database centralizzata
 
 ## Convenzioni
 
-- Uso di Drizzle ORM per type safety
-- Transazioni per operazioni complesse
+- **UUID** per primary key
+- **snake_case** per colonne database  
+- **Timestamps** created_at, updated_at automatici
+- **Indici** per performance query frequenti
+- **Foreign key** con cascade per integrità
+- **Validazione** Zod per input/outputzioni complesse
 - Gestione connessioni e pool
 - Logging delle query in development
 - Separazione schema da logica business

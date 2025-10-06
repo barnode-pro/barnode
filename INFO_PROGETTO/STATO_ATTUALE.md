@@ -34,10 +34,11 @@
 - **Tema:** ✅ Palette BarNode applicata
 
 ### Backend (Express + Node.js)
-- **Server base:** ✅ Configurato
-- **API structure:** ✅ Placeholder implementati
-- **Database:** ⚪ Schema da implementare
-- **Middleware:** ✅ Base configurato
+- **Server base:** ✅ Configurato con CORS e middleware
+- **API REST:** ✅ 18 endpoint /api/v1/ implementati
+- **Database:** ✅ Schemi Drizzle + PostgreSQL
+- **Repository:** ✅ Pattern CRUD per 4 entità
+- **Error handling:** ✅ Centralizzato con Zod validation
 
 ### Sistema Icone
 - **Standard:** ✅ Tabler Icons (principale)
@@ -54,6 +55,13 @@
 - Aggiornati Header, BottomNav, ThemeToggle
 - Creata governance in vite.config.ts
 - Documentazione ICONS_GUIDE.md completa
+
+### 06/10/2025 - STEP 2 API Backend
+- Implementate API REST modulari Express + Drizzle
+- 18 endpoint /api/v1/ per articoli, fornitori, ordini
+- Repository pattern CRUD con error handling
+- Test API con Vitest + Supertest
+- Policy 200 righe rispettata (22 file creati)
 
 ### 06/10/2025 - Creazione INFO_PROGETTO
 - Nuova cartella file informativi
