@@ -35,7 +35,6 @@ export type NavRoute = "/" | "/articoli" | "/fornitori" | "/ordini" | "/ricezion
 export interface FiltroArticoli {
   categoria?: string;
   fornitore_id?: string;
-  solo_scarsita?: boolean;
   ricerca?: string;
 }
 

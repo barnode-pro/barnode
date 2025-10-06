@@ -119,7 +119,7 @@ describe('ImportProdottiDialog - Smoke Test', () => {
         aggiornati: 1,
         saltati: 1,
         fornitori_creati: 0,
-        warnings: ['Prodotto XYZ: prezzo non valido']
+        warnings: ['Prodotto XYZ: nome mancante']
       }
     };
 
@@ -157,7 +157,7 @@ describe('ImportProdottiDialog - Smoke Test', () => {
     // Verifica risultati e warnings
     await waitFor(() => {
       expect(screen.getByText('Import Completato')).toBeInTheDocument();
-      expect(screen.getByText('Prodotto XYZ: prezzo non valido')).toBeInTheDocument();
+      expect(screen.getByText('Prodotto XYZ: nome mancante')).toBeInTheDocument();
     });
   });
 

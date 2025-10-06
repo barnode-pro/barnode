@@ -277,7 +277,7 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
                       <AlertDescription>
-                        <strong>Colonne supportate:</strong> Nome Prodotto, Categoria, Fornitore, Prezzo acquisto, Prezzo vendita.
+                        <strong>Colonne supportate:</strong> Nome Prodotto (obbligatorio), Categoria, Fornitore.
                       </AlertDescription>
                     </Alert>
 

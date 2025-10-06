@@ -10,8 +10,7 @@ export interface BulkEditArticoliRequest {
   ids: string[];
   patch: {
     categoria?: string;
-    prezzo_acquisto?: number;
-    prezzo_vendita?: number;
+    fornitore_id?: string;
   };
 }
 

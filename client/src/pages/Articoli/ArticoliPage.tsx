@@ -186,11 +186,8 @@ export default function ArticoliPage() {
                       <div className="space-y-1">
                         <h3 className="font-medium">{articolo.nome}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {articolo.categoria} • {articolo.fornitore.nome}
+                          {articolo.categoria} • {articolo.fornitore?.nome || 'Nessun fornitore'}
                         </p>
-                        {articolo.note && (
-                          <p className="text-xs text-muted-foreground">{articolo.note}</p>
-                        )}
                       </div>
                       <div className="flex items-center gap-3">
                         {/* Badge giacenze rimossi - gestione disabilitata */}

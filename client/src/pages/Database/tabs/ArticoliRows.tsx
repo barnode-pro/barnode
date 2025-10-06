@@ -44,8 +44,6 @@ export default function ArticoliRows({
                 </th>
                 <th className="p-3 text-left font-medium">Nome</th>
                 <th className="p-3 text-left font-medium">Categoria</th>
-                <th className="p-3 text-left font-medium">Prezzo Acquisto</th>
-                <th className="p-3 text-left font-medium">Prezzo Vendita</th>
                 <th className="p-3 text-left font-medium">Fornitore</th>
               </tr>
             </thead>
@@ -57,8 +55,6 @@ export default function ArticoliRows({
                     <td className="p-3"><Skeleton className="h-4 w-4" /></td>
                     <td className="p-3"><Skeleton className="h-4 w-32" /></td>
                     <td className="p-3"><Skeleton className="h-4 w-20" /></td>
-                    <td className="p-3"><Skeleton className="h-4 w-16" /></td>
-                    <td className="p-3"><Skeleton className="h-4 w-16" /></td>
                     <td className="p-3"><Skeleton className="h-4 w-24" /></td>
                   </tr>
                 ))
@@ -79,26 +75,12 @@ export default function ArticoliRows({
                         <span className="text-muted-foreground">-</span>
                       )}
                     </td>
-                    <td className="p-3">
-                      {articolo.prezzo_acquisto ? (
-                        `€ ${Number(articolo.prezzo_acquisto).toFixed(2)}`
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </td>
-                    <td className="p-3">
-                      {articolo.prezzo_vendita ? (
-                        `€ ${Number(articolo.prezzo_vendita).toFixed(2)}`
-                      ) : (
-                        <span className="text-muted-foreground">-</span>
-                      )}
-                    </td>
-                    <td className="p-3">{articolo.fornitore.nome}</td>
+                    <td className="p-3">{articolo.fornitore?.nome || 'Nessun fornitore'}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                  <td colSpan={4} className="p-8 text-center text-muted-foreground">
                     Nessun articolo trovato
                   </td>
                 </tr>

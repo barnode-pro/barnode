@@ -10,7 +10,7 @@ import { useInvalidateTableCache } from '@/hooks/useDatabaseTables';
 
 /**
  * Dialog per bulk edit articoli
- * Permette modifica categoria, prezzo_acquisto, prezzo_vendita
+ * Permette modifica categoria e fornitore
  */
 
 interface BulkEditDialogProps {
@@ -27,8 +27,7 @@ export default function BulkEditDialog({
   onSuccess 
 }: BulkEditDialogProps) {
   const [categoria, setCategoria] = useState('');
-  const [prezzoAcquisto, setPrezzoAcquisto] = useState('');
-  const [prezzoVendita, setPrezzoVendita] = useState('');
+  const [fornitoreId, setFornitoreId] = useState('');
   
   const { toast } = useToast();
   const { invalidateArticoli } = useInvalidateTableCache();
@@ -57,8 +56,7 @@ export default function BulkEditDialog({
     // Prepara patch con solo i campi compilati
     const patch: any = {};
     if (categoria.trim()) patch.categoria = categoria.trim();
-    if (prezzoAcquisto.trim()) patch.prezzo_acquisto = parseFloat(prezzoAcquisto);
-    if (prezzoVendita.trim()) patch.prezzo_vendita = parseFloat(prezzoVendita);
+    if (fornitoreId.trim()) patch.fornitore_id = fornitoreId.trim();
 
     // Verifica che almeno un campo sia compilato
     if (Object.keys(patch).length === 0) {
@@ -78,8 +76,7 @@ export default function BulkEditDialog({
 
   const handleClose = () => {
     setCategoria('');
-    setPrezzoAcquisto('');
-    setPrezzoVendita('');
+    setFornitoreId('');
     onOpenChange(false);
   };
 
@@ -106,28 +103,12 @@ export default function BulkEditDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="prezzo-acquisto">Prezzo Acquisto (€)</Label>
+            <Label htmlFor="fornitore-id">ID Fornitore</Label>
             <Input
-              id="prezzo-acquisto"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              value={prezzoAcquisto}
-              onChange={(e) => setPrezzoAcquisto(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="prezzo-vendita">Prezzo Vendita (€)</Label>
-            <Input
-              id="prezzo-vendita"
-              type="number"
-              step="0.01"
-              min="0"
-              placeholder="0.00"
-              value={prezzoVendita}
-              onChange={(e) => setPrezzoVendita(e.target.value)}
+              id="fornitore-id"
+              placeholder="UUID del fornitore..."
+              value={fornitoreId}
+              onChange={(e) => setFornitoreId(e.target.value)}
             />
           </div>
         </div>

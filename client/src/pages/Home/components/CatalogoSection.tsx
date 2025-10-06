@@ -73,7 +73,7 @@ export default function CatalogoSection() {
                       </Badge>
                     )}
                     <span className="text-xs text-muted-foreground">
-                      {articolo.fornitore.nome}
+                      {articolo.fornitore?.nome || 'Nessun fornitore'}
                     </span>
                   </div>
                 </div>

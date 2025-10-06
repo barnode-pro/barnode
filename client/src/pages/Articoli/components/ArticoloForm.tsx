@@ -17,8 +17,9 @@ interface ArticoloFormProps {
 
 export function ArticoloForm({ articoloId, onClose, onSave }: ArticoloFormProps) {
   const [formData, setFormData] = useState<InsertArticolo>({
-    nome: '', categoria: '', unita: '', confezione: '',
-    fornitore_id: '', note: ''
+    nome: '',
+    categoria: '',
+    fornitore_id: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,9 +36,9 @@ export function ArticoloForm({ articoloId, onClose, onSave }: ArticoloFormProps)
       if (response.success && response.data) {
         const a = response.data;
         setFormData({
-          nome: a.nome, categoria: a.categoria || '', unita: a.unita || '',
-          confezione: a.confezione || '', fornitore_id: a.fornitore.id,
-          note: a.note || ''
+          nome: a.nome,
+          categoria: a.categoria || '',
+          fornitore_id: a.fornitore?.id || ''
         });
       } else setError(response.message || 'Errore caricamento');
     } catch (err) {
@@ -88,33 +89,19 @@ export function ArticoloForm({ articoloId, onClose, onSave }: ArticoloFormProps)
               <Label>Categoria</Label>
               <Input value={formData.categoria} onChange={(e) => handleChange('categoria', e.target.value)} disabled={loading} />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Unità</Label>
-                <Input value={formData.unita} onChange={(e) => handleChange('unita', e.target.value)} placeholder="pz, kg..." disabled={loading} />
-              </div>
-              <div>
-                <Label>Confezione</Label>
-                <Input value={formData.confezione} onChange={(e) => handleChange('confezione', e.target.value)} placeholder="scatola..." disabled={loading} />
-              </div>
-            </div>
-            {/* Campi giacenze rimossi - gestione disabilitata */}
             <div>
-              <Label>Fornitore *</Label>
+              <Label>Fornitore</Label>
               <Select value={formData.fornitore_id} onValueChange={(value) => handleChange('fornitore_id', value)} disabled={loading}>
-                <SelectTrigger><SelectValue placeholder="Seleziona fornitore" /></SelectTrigger>
+                <SelectTrigger><SelectValue placeholder="Seleziona fornitore (opzionale)" /></SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">Nessun fornitore</SelectItem>
                   {fornitori.map(f => <SelectItem key={f.id} value={f.id}>{f.nome}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Note</Label>
-              <Input value={formData.note} onChange={(e) => handleChange('note', e.target.value)} disabled={loading} />
-            </div>
             <div className="flex gap-2 pt-4">
               <Button type="button" variant="outline" onClick={onClose} disabled={loading}>Annulla</Button>
-              <Button type="submit" disabled={loading || !formData.nome || !formData.fornitore_id}>
+              <Button type="submit" disabled={loading || !formData.nome}>
                 {loading ? 'Salvataggio...' : (articoloId ? 'Aggiorna' : 'Crea')}
               </Button>
             </div>

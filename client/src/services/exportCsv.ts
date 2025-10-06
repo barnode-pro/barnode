@@ -61,18 +61,16 @@ export function downloadCsv(csvContent: string, filename: string): void {
 }
 
 /**
- * Export articoli in CSV
+ * Export articoli in CSV - Solo 3 campi essenziali
  */
 export function exportArticoliToCsv(articoli: any[], filename?: string): void {
-  const headers = ['nome', 'categoria', 'prezzo_acquisto', 'prezzo_vendita', 'fornitore'];
+  const headers = ['Nome', 'Categoria', 'Fornitore'];
   
   // Trasforma dati per export
   const exportData = articoli.map(articolo => ({
-    nome: articolo.nome,
-    categoria: articolo.categoria || '',
-    prezzo_acquisto: articolo.prezzo_acquisto || '',
-    prezzo_vendita: articolo.prezzo_vendita || '',
-    fornitore: articolo.fornitore?.nome || ''
+    Nome: articolo.nome,
+    Categoria: articolo.categoria || '',
+    Fornitore: articolo.fornitore?.nome || ''
   }));
   
   const csv = arrayToCsv(exportData, headers);

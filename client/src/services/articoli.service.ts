@@ -11,18 +11,15 @@ export interface ArticoliFilters {
   search?: string;
   categoria?: string;
   fornitore_id?: string;
-  solo_scarsita?: boolean;
   page?: number;
   pageSize?: number;
 }
 
 export interface ArticoloConFornitore extends Omit<Articolo, 'fornitore_id'> {
-  prezzo_acquisto?: number | null;
-  prezzo_vendita?: number | null;
   fornitore: {
     id: string;
     nome: string;
-  };
+  } | null;
 }
 
 export class ArticoliService {
@@ -33,7 +30,6 @@ export class ArticoliService {
     if (filters.search) params.append('search', filters.search);
     if (filters.categoria) params.append('categoria', filters.categoria);
     if (filters.fornitore_id) params.append('fornitore_id', filters.fornitore_id);
-    if (filters.solo_scarsita) params.append('solo_scarsita', 'true');
     if (filters.page) params.append('page', filters.page.toString());
     if (filters.pageSize) params.append('pageSize', filters.pageSize.toString());
     
