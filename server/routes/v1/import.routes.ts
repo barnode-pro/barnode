@@ -23,9 +23,16 @@ const upload = multer({
     const allowedTypes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
       'application/vnd.ms-excel', // .xls
-      'text/csv' // .csv
+      'text/csv', // .csv
+      'text/plain', // .csv (alternative)
+      'application/csv' // .csv (alternative)
     ];
-    if (allowedTypes.includes(file.mimetype)) {
+    
+    // Verifica anche l'estensione del file come fallback
+    const fileName = file.originalname.toLowerCase();
+    const isValidExtension = fileName.endsWith('.csv') || fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
+    
+    if (allowedTypes.includes(file.mimetype) || isValidExtension) {
       cb(null, true);
     } else {
       cb(new Error('Formato file non supportato. Usa XLSX o CSV.'));
@@ -38,14 +45,26 @@ const googleSheetSchema = z.object({
   url: z.string().url('URL non valido')
 });
 
-// Mapping colonne con sinonimi (case-insensitive)
+// Mapping colonne con sinonimi (case-insensitive) - Allineato alla documentazione
 const COLUMN_MAPPINGS = {
-  nome: ['descrizione', 'nome', 'prodotto', 'nome prodotto'],
+  nome: ['nome prodotto', 'nome', 'descrizione', 'prodotto'],
   categoria: ['categoria', 'reparto'],
   fornitore: ['fornitore', 'supplier', 'marca'],
   prezzo_acquisto: ['prezzo acquisto', 'acquisto', 'costo', "prezzo d'acquisto"],
   prezzo_vendita: ['prezzo vendita', 'vendita', 'listino', 'prezzo']
 };
+
+// Flag debug per log dettagliati
+const isDebugMode = () => process.env.DEBUG_IMPORT === 'true' || process.env.NODE_ENV !== 'production';
+
+/**
+ * Log debug condizionale
+ */
+function debugLog(message: string, data?: any) {
+  if (isDebugMode()) {
+    logger.info(message, data);
+  }
+}
 
 interface ParsedProduct {
   nome: string;
@@ -171,70 +190,68 @@ async function importProducts(products: ParsedProduct[]): Promise<ImportResult> 
     warnings: []
   };
   
-  // Transazione per consistenza
-  return await db.transaction(async (tx) => {
-    const fornitoriCache = new Map<string, string>(); // nome -> id
-    
-    for (const product of products) {
-      try {
-        // Upsert fornitore
-        let fornitoreId = fornitoriCache.get(product.fornitore.toLowerCase());
+  // Processamento prodotti (senza transazione per ora - fix temporaneo)
+  const fornitoriCache = new Map<string, string>(); // nome -> id
+  
+  for (const product of products) {
+    try {
+      // Upsert fornitore
+      let fornitoreId = fornitoriCache.get(product.fornitore.toLowerCase());
+      
+      if (!fornitoreId) {
+        const existingFornitore = await fornitoriRepo.findByNome(product.fornitore);
         
-        if (!fornitoreId) {
-          const existingFornitore = await fornitoriRepo.findByNome(product.fornitore);
-          
-          if (existingFornitore) {
-            fornitoreId = existingFornitore.id;
-          } else {
-            const newFornitore = await fornitoriRepo.create({
-              nome: product.fornitore,
-              whatsapp: undefined
-            });
-            fornitoreId = newFornitore.id;
-            result.fornitori_creati++;
-          }
-          
-          fornitoriCache.set(product.fornitore.toLowerCase(), fornitoreId);
-        }
-        
-        // Upsert articolo
-        const existingArticolo = await articoliRepo.findByFornitoreAndNome(
-          fornitoreId,
-          product.nome
-        );
-        
-        if (existingArticolo) {
-          // Update solo categoria e prezzi
-          await articoliRepo.update(existingArticolo.id, {
-            categoria: product.categoria === null ? undefined : product.categoria,
-            prezzo_acquisto: product.prezzo_acquisto === null ? undefined : product.prezzo_acquisto,
-            prezzo_vendita: product.prezzo_vendita === null ? undefined : product.prezzo_vendita
-          });
-          result.aggiornati++;
+        if (existingFornitore) {
+          fornitoreId = existingFornitore.id;
         } else {
-          // Insert nuovo articolo
-          await articoliRepo.create({
-            nome: product.nome,
-            categoria: product.categoria === null ? undefined : product.categoria,
-            fornitore_id: fornitoreId,
-            prezzo_acquisto: product.prezzo_acquisto === null ? undefined : product.prezzo_acquisto,
-            prezzo_vendita: product.prezzo_vendita === null ? undefined : product.prezzo_vendita,
-            quantita_attuale: 0,
-            soglia_minima: 10
+          const newFornitore = await fornitoriRepo.create({
+            nome: product.fornitore,
+            whatsapp: undefined
           });
-          result.creati++;
+          fornitoreId = newFornitore.id;
+          result.fornitori_creati++;
         }
         
-      } catch (error) {
-        result.saltati++;
-        if (result.warnings.length < 10) {
-          result.warnings.push(`Prodotto ${product.nome}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
-        }
+        fornitoriCache.set(product.fornitore.toLowerCase(), fornitoreId);
+      }
+      
+      // Upsert articolo
+      const existingArticolo = await articoliRepo.findByFornitoreAndNome(
+        fornitoreId,
+        product.nome
+      );
+      
+      if (existingArticolo) {
+        // Update solo categoria e prezzi
+        await articoliRepo.update(existingArticolo.id, {
+          categoria: product.categoria === null ? undefined : product.categoria,
+          prezzo_acquisto: product.prezzo_acquisto === null ? undefined : product.prezzo_acquisto,
+          prezzo_vendita: product.prezzo_vendita === null ? undefined : product.prezzo_vendita
+        });
+        result.aggiornati++;
+      } else {
+        // Insert nuovo articolo
+        await articoliRepo.create({
+          nome: product.nome,
+          categoria: product.categoria === null ? undefined : product.categoria,
+          fornitore_id: fornitoreId,
+          prezzo_acquisto: product.prezzo_acquisto === null ? undefined : product.prezzo_acquisto,
+          prezzo_vendita: product.prezzo_vendita === null ? undefined : product.prezzo_vendita,
+          quantita_attuale: 0,
+          soglia_minima: 10
+        });
+        result.creati++;
+      }
+      
+    } catch (error) {
+      result.saltati++;
+      if (result.warnings.length < 10) {
+        result.warnings.push(`Prodotto ${product.nome}: ${error instanceof Error ? error.message : 'Errore sconosciuto'}`);
       }
     }
-    
-    return result;
-  });
+  }
+  
+  return result;
 }
 
 // POST /api/v1/import/prodotti - Upload file
@@ -247,33 +264,85 @@ router.post('/prodotti', upload.single('file'), async (req, res, next) => {
       });
     }
 
+    // 📥 Log iniziale con dettagli file
+    debugLog('📥 Import request', {
+      filename: req.file.originalname,
+      mimetype: req.file.mimetype,
+      size: req.file.size
+    });
+
     let rows: Record<string, any>[] = [];
+    let contentPreview = '';
     
     if (req.file.mimetype.includes('sheet')) {
       // Excel file
+      debugLog('📊 Parsing Excel file');
       const workbook = XLSX.read(req.file.buffer, { type: 'buffer' });
       const sheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
       rows = XLSX.utils.sheet_to_json(worksheet);
+      contentPreview = JSON.stringify(rows[0] || {}).substring(0, 500);
     } else {
       // CSV file
+      debugLog('📄 Parsing CSV file');
       const csvData = req.file.buffer.toString('utf8');
+      contentPreview = csvData.substring(0, 500);
       rows = parseCSV(csvData);
     }
     
+    // 🧾 Log preview contenuto
+    debugLog('🧾 CSV preview', contentPreview + (contentPreview.length >= 500 ? '...' : ''));
+    
+    // 🗂️ Log headers rilevati
+    const headersDetected = rows.length > 0 ? Object.keys(rows[0]) : [];
+    debugLog('🗂️ Headers detected', headersDetected);
+    
+    // 📊 Log righe parsate
+    debugLog('📊 Parsed rows', { count: rows.length, firstRow: rows[0] });
+    
     // Mappa e filtra prodotti validi
     const products: ParsedProduct[] = [];
-    for (const row of rows) {
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
       const product = mapHeaders(row);
+      
+      // Log normalizzazione prezzi per la prima riga
+      if (i === 0 && product && isDebugMode()) {
+        const prezzoAcquistoKey = Object.keys(row).find(key => 
+          COLUMN_MAPPINGS.prezzo_acquisto.includes(key.toLowerCase().trim())
+        );
+        const prezzoVenditaKey = Object.keys(row).find(key => 
+          COLUMN_MAPPINGS.prezzo_vendita.includes(key.toLowerCase().trim())
+        );
+        
+        if (prezzoAcquistoKey || prezzoVenditaKey) {
+          debugLog('💰 Price normalization (first row)', {
+            prezzo_acquisto: {
+              original: prezzoAcquistoKey ? row[prezzoAcquistoKey] : 'N/A',
+              parsed: product.prezzo_acquisto
+            },
+            prezzo_vendita: {
+              original: prezzoVenditaKey ? row[prezzoVenditaKey] : 'N/A', 
+              parsed: product.prezzo_vendita
+            }
+          });
+        }
+      }
+      
       if (product) {
         products.push(product);
       }
     }
     
+    // 🧩 Log prodotti validi
+    debugLog('🧩 Valid products', products.length);
+    
     if (products.length === 0) {
+      debugLog('❌ Valid products=0', { headersDetected });
       return res.status(400).json({
         success: false,
-        message: 'Nessun prodotto valido trovato nel file'
+        message: 'Nessun prodotto valido trovato nel file',
+        debug: isDebugMode() ? { headersDetected } : undefined
       });
     }
     

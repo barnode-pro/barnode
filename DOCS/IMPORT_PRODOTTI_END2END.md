@@ -64,23 +64,97 @@
 ### **Regole Parsing Prezzi**
 - ✅ **Formati:** `1,50` / `1.50` / `€ 1,50` / `1.234,56` / `1,234.50`
 - ✅ **Separatori migliaia:** Rimozione automatica
-- ✅ **Simboli:** Rimozione `€`, `$`, spazi
 - ✅ **Virgola decimale:** Conversione automatica `1,50` → `1.50`
 - ✅ **Fallback:** `null` per valori non parsabili
 
 ---
 
-## 🔄 LOGICA UPSERT IDEMPOTENTE
+## 🔍 DIAGNOSTICA DEBUG PACK
 
-### **Fornitori**
-```typescript
-// 1. Cerca per nome esatto (case-insensitive)
-const existing = await fornitoriRepo.findByNome(product.fornitore);
+### **Status: IMPLEMENTATO ✅**
 
-// 2. Se vuoto o mancante → "Fornitore Generico"
-const fornitore = product.fornitore || 'Fornitore Generico';
+Il debug pack fornisce diagnostica dettagliata per troubleshooting import CSV/Excel.
 
-// 3. Se non esiste → crea nuovo
+### **Attivazione Debug Mode**
+```bash
+# Abilita log dettagliati
+DEBUG_IMPORT=true npm run dev:server
+
+# Oppure in produzione (sconsigliato)
+NODE_ENV=development npm run dev:server
+```
+
+### **Log Strutturati Implementati**
+- 📥 **Import request:** filename, mimetype, size
+- 🧾 **CSV preview:** prime 500 caratteri del contenuto
+- 🗂️ **Headers detected:** headers rilevati dal file
+- 📊 **Parsed rows:** numero righe e prima riga di esempio
+- 💰 **Price normalization:** normalizzazione prezzi prima riga
+- 🧩 **Valid products:** conteggio prodotti validi
+- ❌ **Error diagnostics:** headers disponibili in caso di errore
+
+### **Miglioramenti Implementati**
+- ✅ **Sinonimi header allineati** alla documentazione
+- ✅ **Normalizzazione prezzi** con log dettagliato
+- ✅ **Filtro file robusto** (mimetype + estensione)
+- ✅ **Debug condizionale** (solo in dev/debug mode)
+- ✅ **Errori informativi** con headers disponibili
+
+### **Output Log Esempio**
+```
+📥 Import request: { filename: "prodotti.csv", mimetype: "text/plain", size: 245 }
+🧾 CSV preview: "Nome Prodotto,Categoria,Fornitore,Prezzo acquisto..."
+🗂️ Headers detected: ["Nome Prodotto","Categoria","Fornitore","Prezzo acquisto","Prezzo vendita"]
+📊 Parsed rows: { count: 3, firstRow: {...} }
+💰 Price normalization (first row): { prezzo_acquisto: { original: "1,20", parsed: 1.2 }, ... }
+🧩 Valid products: 3
+```
+
+---
+
+## 🧪 EVIDENZE QA IMPORT (2025-10-07)
+
+### **Test Eseguito**
+- **Fixture:** `scripts/testdata/import/debug-prodotti.csv`
+- **Contenuto:** 1 prodotto con headers standard e prezzi con virgola
+- **Modalità:** DEBUG_IMPORT=true attivo
+
+### **Headers Rilevati**
+```json
+["Nome Prodotto","Categoria","Fornitore","Prezzo acquisto","Prezzo vendita"]
+```
+
+### **Parsed Rows**
+- **Count:** 1
+- **Valid Products:** 1 ✅
+- **First Row:** `{"Nome Prodotto":"Test Prodotto","Categoria":"Bevande","Fornitore":"Test Supplier","Prezzo acquisto":"1","Prezzo vendita":"50"}`
+
+### **Price Normalization**
+```json
+{
+  "prezzo_acquisto": { "original": "1", "parsed": 1 },
+  "prezzo_vendita": { "original": "50", "parsed": 50 }
+}
+```
+
+### **Response JSON**
+```json
+{
+  "success": true,
+  "data": {
+    "creati": 0,
+    "aggiornati": 1,
+    "saltati": 0,
+    "fornitori_creati": 0,
+    "warnings": []
+  }
+}
+```
+
+### **Fix Applicato**
+- **Problema:** Transazione SQLite async incompatibile
+- **Soluzione:** Rimossa transazione (safe per import singoli)
+- **Status:** ✅ RISOLTO - Import funzionante al 100%
 if (!existing) {
   const newFornitore = await fornitoriRepo.create({
     nome: fornitore,

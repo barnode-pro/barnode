@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -179,6 +179,9 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
             <FileSpreadsheet className="h-5 w-5" />
             Importa Prodotti
           </DialogTitle>
+          <DialogDescription>
+            Carica file Excel/CSV o importa da Google Sheet per aggiungere prodotti al catalogo
+          </DialogDescription>
         </DialogHeader>
 
         <Tabs defaultValue="file" className="w-full">
@@ -402,6 +405,9 @@ export function ImportProdottiDialog({ children }: ImportProdottiDialogProps) {
               <AlertCircle className="h-5 w-5 text-amber-500" />
               Conferma Import
             </DialogTitle>
+            <DialogDescription>
+              Scegli come procedere con l'importazione dei prodotti
+            </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4">
